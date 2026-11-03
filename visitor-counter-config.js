@@ -1,0 +1,1 @@
+window.DLMED_VISITOR_COUNTER_URL = '';
