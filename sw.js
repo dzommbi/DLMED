@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'dlmed-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v80`;
+const CACHE_NAME = `${CACHE_PREFIX}v81`;
 const APP_FILES = ['./', './index.html', './manifest.json', './manifest.webmanifest', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png', './biochimie-homme-sain.js', './biochimie-etapes-analyse.js', './biochimie-marqueurs-cardiaques.js', './physio-choc-hypovolemique.js', './physio-mtev.js', './physio-ira.js', './psychologie-relation-medecin-malade.js', './semiologie-nouveaux-chapitres.js', './semiologie-examen-physique.js', './visitor-counter-config.js', './visitor-counter.js'];
 
 self.addEventListener('install', event => {
