@@ -1,14 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>DLMed</title>
-  <defs>
-    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#2b60d8"/>
-      <stop offset="1" stop-color="#3979e8"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#background)"/>
-  <g transform="translate(25.6 25.6) scale(.9)">
-    <path fill="#fff" fill-rule="evenodd" d="M112 80h134c108 0 168 68 168 176s-60 176-168 176H112zm99 77v198h35c54 0 91-33 91-99s-37-99-91-99z"/>
-    <path fill="#20b5a2" d="M261 211h26v32h32v26h-32v32h-26v-32h-32v-26h32z"/>
-  </g>
+  <rect width="512" height="512" rx="112" fill="#326de6"/>
+  <path d="M256 98c-63 0-114 51-114 114 0 79 114 202 114 202s114-123 114-202c0-63-51-114-114-114Z" fill="#fff" opacity=".98"/>
+  <path d="M230 154h52v48h48v52h-48v48h-52v-48h-48v-52h48z" fill="#20a895"/>
+  <circle cx="256" cy="256" r="174" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="10"/>
 </svg>
