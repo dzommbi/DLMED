@@ -137,7 +137,28 @@
 .module-group-summary small{font:500 11px Manrope,sans-serif;color:#8b99aa}
 .module-group-content{padding:11px 12px 12px;border-top:1px solid #edf1f6}
 .module-group-content .select-all-row{margin-bottom:9px}
+.picker-directory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:12px}
+.picker-folder{height:max-content}
+.picker-folder-summary{display:grid;grid-template-columns:42px minmax(0,1fr) auto 14px;align-items:center;gap:10px;min-height:76px;padding:12px}
+.picker-folder-summary::after{margin-left:0;justify-self:end}
+.picker-folder-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#e9f1ff,#dce8ff);color:#326de6;box-shadow:inset 0 1px #ffffffb8,0 4px 10px #263b5d12}
+.picker-folder-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.picker-folder-icon--modules{background:linear-gradient(145deg,#f0ebff,#e5ddff);color:#705acb}
+.picker-folder-copy{display:grid;gap:4px;min-width:0}
+.picker-folder-copy strong{font:800 13px Manrope,sans-serif;color:#293951}
+.picker-folder-copy small{font:500 10px Manrope,sans-serif;color:#8995a8;line-height:1.35}
+.picker-folder-badge{padding:5px 8px;border-radius:20px;background:#edf3ff;color:#426cc7;font:700 10px Manrope,sans-serif;white-space:nowrap}
+.picker-folder-badge--empty{background:#f0ebff;color:#705acb}
+.picker-folder-content{display:grid;gap:10px}
+.unit-placeholder,.modules-empty{display:flex;align-items:center;gap:11px;padding:12px;border:1px dashed #d8e1ee;border-radius:12px;background:#f8faff;color:#718198}
+.unit-placeholder-icon,.modules-empty-icon{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:10px;background:#edf3ff;color:#6683bd}
+.unit-placeholder-icon svg,.modules-empty-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.unit-placeholder-copy,.modules-empty-copy{display:grid;gap:3px;min-width:0}
+.unit-placeholder-copy strong,.modules-empty-copy strong{font:700 11px Manrope,sans-serif;color:#52647c}
+.unit-placeholder-copy small,.modules-empty-copy small{font-size:10px;line-height:1.4;color:#8795a8}
+.picker-directory-grid:has(>.picker-folder[open]){grid-template-columns:minmax(0,1fr)}
 @media(max-width:700px){.module-group-summary{padding:13px 12px}.module-group-content{padding:9px}}
+@media(max-width:700px){.picker-directory-grid{grid-template-columns:minmax(0,1fr);gap:9px}.picker-folder-summary{grid-template-columns:36px minmax(0,1fr) auto 12px;min-height:68px;gap:8px;padding:10px}.picker-folder-icon{width:36px;height:36px;border-radius:11px}.picker-folder-copy small{font-size:9px}.picker-folder-badge{padding:4px 7px;font-size:9px}}
 </style><script>try{if(localStorage.getItem("dlmed-theme")==="night")document.documentElement.dataset.theme="night"}catch(error){}</script><style>
 .welcome-card{position:relative}
 .theme-toggle{display:flex;align-items:center;justify-content:center;gap:3px;padding:4px;background:linear-gradient(135deg,#f7f9ff,#edf3ff);border:1px solid #e1e9f6;border-radius:14px;box-shadow:0 5px 16px #263b5d10}
@@ -193,6 +214,18 @@
 :root[data-theme="night"] .module-group-summary:hover,:root[data-theme="night"] .module-group[open]>.module-group-summary{background:#1d304b;color:#9bb7ff}
 :root[data-theme="night"] .module-group-summary small{color:#9baac0}
 :root[data-theme="night"] .module-group-content{border-color:#2a3a52}
+:root[data-theme="night"] .picker-folder-summary{color:#e0e9f5}
+:root[data-theme="night"] .picker-folder-summary:hover,:root[data-theme="night"] .picker-folder[open]>.picker-folder-summary{background:#1d304b;color:#9bb7ff}
+:root[data-theme="night"] .picker-folder-icon{background:linear-gradient(145deg,#20375c,#263d63);color:#a9c1ff}
+:root[data-theme="night"] .picker-folder-icon--modules{background:linear-gradient(145deg,#302b4a,#3c345f);color:#c9beff}
+:root[data-theme="night"] .picker-folder-copy strong{color:#e0e9f5}
+:root[data-theme="night"] .picker-folder-copy small{color:#9baac0}
+:root[data-theme="night"] .picker-folder-badge{background:#263c60;color:#b6caff}
+:root[data-theme="night"] .picker-folder-badge--empty{background:#302b4a;color:#c9beff}
+:root[data-theme="night"] .unit-placeholder,:root[data-theme="night"] .modules-empty{border-color:#344760;background:#18273d;color:#aab8cc}
+:root[data-theme="night"] .unit-placeholder-icon,:root[data-theme="night"] .modules-empty-icon{background:#243652;color:#a9c1ff}
+:root[data-theme="night"] .unit-placeholder-copy strong,:root[data-theme="night"] .modules-empty-copy strong{color:#d4dfef}
+:root[data-theme="night"] .unit-placeholder-copy small,:root[data-theme="night"] .modules-empty-copy small{color:#9baac0}
 :root[data-theme="night"] .select-all-row{background:#1a2a40;border-color:#2a3b54;color:#d4dfef}
 :root[data-theme="night"] .module-pick{background:#142137;border-color:#2b3b53}
 :root[data-theme="night"] .module-pick:hover{background:#1a2b44;border-color:#526f9c}
@@ -312,6 +345,7 @@
 .module-name{min-width:0;line-height:1.25}
 .module-icon{width:29px;height:29px;flex:0 0 29px;display:grid;place-items:center;border-radius:9px;font-size:15px;line-height:1;box-shadow:inset 0 0 0 1px #ffffff90}
 .module-icon-ecg{background:#e8efff;color:#4166c2}
+.module-icon-exams{background:#e7f5f2;color:#278a70}
 .module-icon-sca{background:#ffedf0;color:#d94f68}
 .module-icon-water{background:#e5f6ff;color:#1888b2}
 .module-icon-weight{background:#fff4e4;color:#bd842a}
@@ -323,6 +357,7 @@
 .module-pick-icon{width:32px;height:32px;flex-basis:32px;border-radius:10px;font-size:16px}
 .module-pick-label{display:block;min-width:0}
 :root[data-theme="night"] .module-icon-ecg{background:#293b62;color:#b3c8ff}
+:root[data-theme="night"] .module-icon-exams{background:#1d4038;color:#8fe0b9}
 :root[data-theme="night"] .module-icon-sca{background:#542c3a;color:#ffb4c1}
 :root[data-theme="night"] .module-icon-water{background:#1b4055;color:#90dcff}
 :root[data-theme="night"] .module-icon-weight{background:#493a24;color:#ffd894}
@@ -438,7 +473,9 @@
 .biochimie-lessons.accordion-closing,.physiopathologie-lessons.accordion-closing{animation:dlmedAccordionClose .22s ease-in both}
 .semiology-branch[open]>.uei-content{animation:dlmedAccordionOpen .28s cubic-bezier(.2,.7,.25,1) both}
 .semiology-branch.accordion-closing>.uei-content,.uei-branch.accordion-closing>.module-group-content{animation:dlmedAccordionClose .22s ease-in both}
-@media(prefers-reduced-motion:reduce){.biochimie-lessons.accordion-opening,.physiopathologie-lessons.accordion-opening,.biochimie-lessons.accordion-closing,.physiopathologie-lessons.accordion-closing,.semiology-branch[open]>.uei-content,.semiology-branch.accordion-closing>.uei-content,.uei-branch.accordion-closing>.module-group-content{animation:none!important}}
+.picker-folder[open]>.picker-folder-content{animation:dlmedAccordionOpen .28s cubic-bezier(.2,.7,.25,1) both}
+.picker-folder.accordion-closing>.picker-folder-content{overflow:hidden;animation:dlmedAccordionClose .26s ease-in both}
+@media(prefers-reduced-motion:reduce){.biochimie-lessons.accordion-opening,.physiopathologie-lessons.accordion-opening,.biochimie-lessons.accordion-closing,.physiopathologie-lessons.accordion-closing,.semiology-branch[open]>.uei-content,.semiology-branch.accordion-closing>.uei-content,.uei-branch.accordion-closing>.module-group-content,.picker-folder[open]>.picker-folder-content,.picker-folder.accordion-closing>.picker-folder-content{animation:none!important}}
 </style><style>
 @keyframes dlmedAccordionClose{from{opacity:1;transform:translateY(0) scale(1);max-height:var(--accordion-content-height,900px)}to{opacity:0;transform:translateY(-6px) scale(.995);max-height:0}}
 .biochimie-lessons.accordion-closing,.physiopathologie-lessons.accordion-closing,.semiology-branch.accordion-closing>.uei-content,.uei-branch.accordion-closing>.module-group-content{overflow:hidden;animation:dlmedAccordionClose .26s ease-in both}
@@ -552,8 +589,12 @@
 </main>
 <div class="module-modal" id="moduleModal" aria-hidden="true">
   <section class="module-dialog" role="dialog" aria-modal="true" aria-labelledby="moduleDialogTitle">
-    <div class="module-dialog-head"><div><div class="eyebrow">Préparer une session</div><h2 id="moduleDialogTitle">Choisis tes modules</h2></div><button class="modal-close" id="closeModulePicker" aria-label="Fermer">×</button></div>
-    <p class="module-dialog-copy">Sélectionne un ou plusieurs modules. Ils seront parcourus dans l’ordre des numéros de QSM.</p>
+    <div class="module-dialog-head"><div><div class="eyebrow">Préparer une session</div><h2 id="moduleDialogTitle">Choisis un espace</h2></div><button class="modal-close" id="closeModulePicker" aria-label="Fermer">×</button></div>
+    <p class="module-dialog-copy">Ouvre « Unités » pour choisir une UE, ou « Modules » pour accéder à ton espace de modules.</p>
+    <div class="picker-directory-grid">
+      <details class="module-group picker-folder units-folder">
+        <summary class="module-group-summary picker-folder-summary"><span class="picker-folder-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v10h-17z"/><path d="M3.5 7.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v2"/></svg></span><span class="picker-folder-copy"><strong>Unités</strong><small>UEI 01 Cardio et autres unités</small></span><span class="picker-folder-badge">1 UEI</span></summary>
+        <div class="module-group-content picker-folder-content">
     <details class="module-group uei-branch">
       <summary class="uei-summary">
         <span class="uei-heart-badge" aria-hidden="true"><svg viewBox="0 0 40 40"><path class="uei-heart-shape" d="M20 33S5.5 24.3 5.5 14.8A8.1 8.1 0 0 1 20 10.4a8.1 8.1 0 0 1 14.5 4.4C34.5 24.3 20 33 20 33Z"/><path class="uei-heart-line" d="M9 20h6l3-6 4.5 13 3.2-7H31"/></svg></span>
@@ -597,7 +638,16 @@
           </div>
         </details>
       </div>
-    </details><div class="module-dialog-footer"><div class="selection-summary" id="moduleSelectionSummary">Aucun module sélectionné</div><button class="btn primary" id="startChosenModules" disabled>Commencer la révision</button></div>
+    </details>
+          <div class="unit-placeholder"><span class="unit-placeholder-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v10h-17z"/><path d="M3.5 7.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v2"/></svg></span><span class="unit-placeholder-copy"><strong>Autres unités</strong><small>Espace prêt pour les prochaines UE.</small></span></div>
+        </div>
+      </details>
+      <details class="module-group picker-folder modules-folder">
+        <summary class="module-group-summary picker-folder-summary"><span class="picker-folder-icon picker-folder-icon--modules" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v10h-17z"/><path d="M3.5 7.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v2"/></svg></span><span class="picker-folder-copy"><strong>Modules</strong><small>Espace libre à compléter</small></span><span class="picker-folder-badge picker-folder-badge--empty">Vide</span></summary>
+        <div class="module-group-content picker-folder-content"><div class="modules-empty"><span class="modules-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4.5h14v15H5z"/><path d="M8 9h8m-8 4h8m-8 4h5"/></svg></span><span class="modules-empty-copy"><strong>Aucun module ajouté</strong><small>Cette rubrique restera vide jusqu’à ce que tu la remplisses.</small></span></div></div>
+      </details>
+    </div>
+    <div class="module-dialog-footer"><div class="selection-summary" id="moduleSelectionSummary">Aucun module sélectionné</div><button class="btn primary" id="startChosenModules" disabled>Commencer la révision</button></div>
   </section>
 </div>
 
@@ -699,4 +749,6 @@ function move(pool,id){const part=partFor(id);if(reviewMode){const nextId=review
 function toast(msg){let t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
 $('#allNav').onclick=()=>{selectedModule='Tous les QCM';selectedPart='all';onlyWrong=false;clearInterval(timerInterval);activePartKey=null;sectionStartedAt=null;timerPaused=false;$('#pauseTimerBtn').disabled=true;$('#timerPill').textContent='⏱ 00:00';current=1;render()};$('#wrongNav').onclick=()=>{onlyWrong=true;selectedPart='all';selectedModule='Tous les QCM';navWindowStart=0;current=questions.find(q=>answers[q.id]&&!answers[q.id].correct)?.id||1;render()};$('#resetBtn').onclick=()=>{if(confirm('Effacer toutes les réponses et la progression enregistrées sur cet appareil ?')){answers={};persist();current=1;clearInterval(timerInterval);clearInterval(transitionInterval);activePartKey=null;sectionStartedAt=null;timerPaused=false;$('#pauseTimerBtn').disabled=true;$('#timerPill').textContent='⏱ 00:00';render();toast('Progression réinitialisée')}};
 $('#pauseTimerBtn').onclick=toggleTimerPause;$('#partSelect').onchange=()=>{selectedPart=$('#partSelect').value;selectedModule='Tous les QCM';onlyWrong=false;clearInterval(timerInterval);activePartKey=null;sectionStartedAt=null;timerPaused=false;$('#pauseTimerBtn').disabled=true;$('#timerPill').textContent='⏱ 00:00';const [start,end]=partRange(selectedPart);current=questions.find(q=>q.id>=start&&q.id<=end)?.id||start;render()};function updateSoundButton(){const b=$('#soundBtn');b.textContent=soundEnabled?'🔊 Son activé':'🔇 Son désactivé';b.title=soundEnabled?'Désactiver les sons':'Activer les sons';b.setAttribute('aria-pressed',String(soundEnabled))}$('#soundBtn').onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('medqcm-sound',soundEnabled?'on':'off');updateSoundButton();toast(soundEnabled?'Sons activés':'Sons désactivés')};updateSoundButton();
-if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});renderModulePicker();list();stats();requestAnimationFrame(animateWelcomeEntrance);</script><script src="./supabase-runtime.js"></script><script>const themeButtons=document.querySelectorAll("[data-theme-value]");function applyTheme(value,persist=true){const theme=value==="night"?"night":"day";document.documentElement.dataset.theme=theme;themeButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.themeValue===theme)));if(persist){try{localStorage.setItem("dlmed-theme",theme)}catch(error){}}}themeButtons.forEach(button=>button.addEventListener("click",()=>applyTheme(button.dataset.themeValue)));applyTheme(document.documentElement.dataset.theme||"day",false);const homeBrand=document.getElementById("homeBrand");homeBrand.addEventListener("click",event=>{if(event.target.closest("a"))return;returnToWelcome()});homeBrand.addEventListener("keydown",event=>{if(event.target.closest("a"))return;if(event.key==="Enter"||event.key===" "){event.preventDefault();returnToWelcome()}});const psychologieToggle=document.getElementById("psychologieToggle"),psychologieLessons=document.getElementById("psychologieLessons");psychologieToggle.addEventListener("click",()=>toggleAnimatedPanel(psychologieToggle,psychologieLessons))</script><script src="./visitor-counter-config.js"></script><script src="./visitor-counter.js"></script></body></html>
+if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});renderModulePicker();list();stats();requestAnimationFrame(animateWelcomeEntrance);</script><script src="./supabase-runtime.js"></script><script>const themeButtons=document.querySelectorAll("[data-theme-value]");function applyTheme(value,persist=true){const theme=value==="night"?"night":"day";document.documentElement.dataset.theme=theme;themeButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.themeValue===theme)));if(persist){try{localStorage.setItem("dlmed-theme",theme)}catch(error){}}}themeButtons.forEach(button=>button.addEventListener("click",()=>applyTheme(button.dataset.themeValue)));applyTheme(document.documentElement.dataset.theme||"day",false);const homeBrand=document.getElementById("homeBrand");homeBrand.addEventListener("click",event=>{if(event.target.closest("a"))return;returnToWelcome()});homeBrand.addEventListener("keydown",event=>{if(event.target.closest("a"))return;if(event.key==="Enter"||event.key===" "){event.preventDefault();returnToWelcome()}});const psychologieToggle=document.getElementById("psychologieToggle"),psychologieLessons=document.getElementById("psychologieLessons");psychologieToggle.addEventListener("click",()=>toggleAnimatedPanel(psychologieToggle,psychologieLessons))</script><script>
+document.querySelectorAll('.picker-folder').forEach(details=>{const summary=details.querySelector(':scope > .picker-folder-summary'),content=details.querySelector(':scope > .picker-folder-content');if(!summary||!content)return;let closingTimer=null;summary.addEventListener('click',event=>{event.preventDefault();if(closingTimer){clearTimeout(closingTimer);closingTimer=null;details.classList.remove('accordion-closing');content.style.removeProperty('--accordion-content-height');return}if(details.open){content.style.setProperty('--accordion-content-height',content.scrollHeight+'px');details.classList.add('accordion-closing');closingTimer=setTimeout(()=>{details.open=false;details.classList.remove('accordion-closing');content.style.removeProperty('--accordion-content-height');closingTimer=null},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:260)}else{details.open=true}})});
+</script><script src="./visitor-counter-config.js"></script><script src="./visitor-counter.js"></script></body></html>
