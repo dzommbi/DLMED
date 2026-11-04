@@ -132,6 +132,9 @@
   let svg='<circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M7 12h10"/>';
   if(n.includes('radiologie')){tone='radiology';svg='<rect x="3.5" y="4" width="17" height="15" rx="2"/><path d="M7 15l3-3 2.5 2.5 2-2L19 17M8 8h.01M12 21v-2M8 22h8"/>'}
   else if(n.includes('ecg')){tone='ecg';svg='<path d="M2.5 12h4l2.1-5 4.1 10 2.2-5h6.6"/>'}
+  else if(n.includes('examens complementaires')){tone='exams';svg='<path d="m7 4 5 5-2 2-5-5z"/><path d="m11 10 4 4m-7 1a6 6 0 0 0 10-4m-7 4v2m-3 3h12m-5-3H9a5 5 0 0 0 0 3"/>'}
+  else if(n.includes('observation medicale')){svg='<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4M10 11h5m-5 3h5m-5 3h3"/>'}
+  else if(n.includes('semiologie veineuse')){svg='<path d="M12 21v-7m0 0-5-5m5 5 5-5M7 9V5m10 4V5m-5 5v4m0 0-3 3m3-3 3 3"/><circle cx="7" cy="4" r="1.2"/><circle cx="17" cy="4" r="1.2"/>'}
   else if(n.includes('syndrome coronarien')||n.includes('douleurs thoraciques')||n.includes('marqueurs cardiaques')){tone='sca';svg='<path d="M20.8 8.8c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/><path d="M5 12h4l1.5-3 2.2 6 1.5-3H19"/>'}
   else if(n.includes('artérielle')||n.includes('arterielle')||n.includes('hémodynamique')||n.includes('hemodynamique')){tone='hemo';svg='<path d="M12 21V11m0 0L6 5m6 6 6-6M6 5V3m0 2h2m10-2v2m0-2h-2"/><circle cx="12" cy="16" r="2"/>'}
   else if(n.includes('hydratation')||n.includes('hydrique')){tone='water';svg='<path d="M12 3c-2.4 3.3-6.2 7-6.2 11.1a6.2 6.2 0 0 0 12.4 0C18.2 10 14.4 6.3 12 3Z"/><path d="M9 15c.2 1.4 1.1 2.2 2.5 2.5"/>'}
