@@ -1,7 +1,7 @@
 {
   "id": "./",
-  "name": "DLMED - QCM Médecine",
-  "short_name": "DLMED",
+  "name": "DLMed",
+  "short_name": "DLMed",
   "description": "QCM interactifs pour réviser les cours de médecine.",
   "lang": "fr",
   "start_url": "./",

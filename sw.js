@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'dlmed-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v96`;
-const APP_FILES = ['./', './index.html', './quiz.html', './manifest.json', './manifest.webmanifest', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png', './supabase-config.js', './supabase-data.js', './supabase-runtime.js', './visitor-counter-config.js', './visitor-counter.js'];
+const CACHE_NAME = `${CACHE_PREFIX}v97`;
+const APP_FILES = ['./', './index.html', './quiz.html', './manifest.json', './manifest.webmanifest', './favicon.ico', './favicon.png', './apple-touch-icon.png', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png', './supabase-config.js', './supabase-data.js', './supabase-runtime.js', './visitor-counter-config.js', './visitor-counter.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
