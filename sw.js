@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'dlmed-shell-';
-const CACHE_NAME = `${CACHE_PREFIX}v81`;
-const APP_FILES = ['./', './index.html', './manifest.json', './manifest.webmanifest', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png', './biochimie-homme-sain.js', './biochimie-etapes-analyse.js', './biochimie-marqueurs-cardiaques.js', './physio-choc-hypovolemique.js', './physio-mtev.js', './physio-ira.js', './psychologie-relation-medecin-malade.js', './semiologie-nouveaux-chapitres.js', './semiologie-examen-physique.js', './visitor-counter-config.js', './visitor-counter.js'];
+const CACHE_NAME = `${CACHE_PREFIX}v91`;
+const APP_FILES = ['./', './index.html', './quiz.html', './manifest.json', './manifest.webmanifest', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png', './supabase-config.js', './supabase-data.js', './supabase-runtime.js', './visitor-counter-config.js', './visitor-counter.js'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
@@ -16,7 +16,23 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
-  if (event.request.method !== 'GET' || requestUrl.origin !== self.location.origin) return;
+  if (event.request.method !== 'GET') return;
+
+  // Cache the public Supabase SDK so the app shell can still open offline after
+  // its first successful online load. Supabase data grading still needs network.
+  if (requestUrl.origin === 'https://cdn.jsdelivr.net' && requestUrl.pathname.includes('/@supabase/supabase-js@2')) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => cache.match(event.request).then(cached => {
+        if (cached) return cached;
+        return fetch(event.request).then(response => {
+          if (response.ok || response.type === 'opaque') cache.put(event.request, response.clone());
+          return response;
+        }).catch(() => cached || new Response('', { status: 503, statusText: 'Offline' }));
+      }))
+    );
+    return;
+  }
+  if (requestUrl.origin !== self.location.origin) return;
 
   if (requestUrl.pathname.endsWith('/visitor-counter-config.js')) {
     event.respondWith(
@@ -31,8 +47,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  const cacheRequest = requestUrl.pathname.endsWith('/quiz.html')
+    ? new Request(requestUrl.origin + requestUrl.pathname)
+    : event.request;
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
+    caches.match(cacheRequest).then(cached => cached || fetch(event.request).then(response => {
       if (response.ok) {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));

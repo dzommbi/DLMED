@@ -1,0 +1,28 @@
+{
+  "subjects": [
+    { "name": "Biochimie", "icon": "🧪", "sort_order": 1 },
+    { "name": "Physiopathologie", "icon": "🫀", "sort_order": 2 },
+    { "name": "Psychologie médicale", "icon": "🧠", "sort_order": 3 },
+    { "name": "Radiologie", "icon": "🩻", "sort_order": 4 },
+    { "name": "Sémiologie", "icon": "🩺", "sort_order": 5 }
+  ],
+  "lessons": [
+    { "subject": "Sémiologie", "title": "Partie 1 · Sémiologie de l’ECG", "sort_order": 1 },
+    { "subject": "Sémiologie", "title": "Partie 2 · Syndrome coronarien aigu", "sort_order": 2 },
+    { "subject": "Sémiologie", "title": "Troubles de l’hydratation", "sort_order": 3 },
+    { "subject": "Sémiologie", "title": "Sémiologie pondérale", "sort_order": 4 },
+    { "subject": "Sémiologie", "title": "Hémodynamique", "sort_order": 5 },
+    { "subject": "Sémiologie", "title": "Signes fonctionnels en cardiologie", "sort_order": 6 },
+    { "subject": "Sémiologie", "title": "Les insuffisances cardiaques", "sort_order": 7 },
+    { "subject": "Sémiologie", "title": "Douleurs thoraciques", "sort_order": 8 },
+    { "subject": "Sémiologie", "title": "Sémiologie artérielle", "sort_order": 9 },
+    { "subject": "Sémiologie", "title": "Examen physique en cardiologie", "sort_order": 10 },
+    { "subject": "Biochimie", "title": "Biochimie de l’Homme sain", "sort_order": 1 },
+    { "subject": "Biochimie", "title": "Les étapes de l’analyse biochimique", "sort_order": 2 },
+    { "subject": "Biochimie", "title": "Les marqueurs cardiaques", "sort_order": 3 },
+    { "subject": "Physiopathologie", "title": "Le choc hypovolémique", "sort_order": 1 },
+    { "subject": "Physiopathologie", "title": "La maladie thromboembolique veineuse", "sort_order": 2 },
+    { "subject": "Physiopathologie", "title": "Les insuffisances respiratoires aiguës", "sort_order": 3 },
+    { "subject": "Psychologie médicale", "title": "La relation médecin-malade", "sort_order": 1 }
+  ]
+}
