@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dlmed-visitor-counter",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-03",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://dzommbi.github.io"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dlmed-visitor-counter",
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "secrets": {
+    "required": ["IP_HASH_SECRET"]
+  }
+}

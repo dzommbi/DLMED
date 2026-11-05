@@ -17,6 +17,7 @@
     { "subject": "Sémiologie", "title": "Douleurs thoraciques", "sort_order": 8 },
     { "subject": "Sémiologie", "title": "Sémiologie artérielle", "sort_order": 9 },
     { "subject": "Sémiologie", "title": "Examen physique en cardiologie", "sort_order": 10 },
+    { "subject": "Sémiologie", "title": "Examens complémentaires en cardiologie", "sort_order": 11 },
     { "subject": "Biochimie", "title": "Biochimie de l’Homme sain", "sort_order": 1 },
     { "subject": "Biochimie", "title": "Les étapes de l’analyse biochimique", "sort_order": 2 },
     { "subject": "Biochimie", "title": "Les marqueurs cardiaques", "sort_order": 3 },

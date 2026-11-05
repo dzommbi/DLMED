@@ -1,20 +1,11 @@
 (() => {
   const client = window.DLMED_SUPABASE;
-  const CACHE_KEY = 'dlmed-supabase-cache-v1';
   const ORDER_KEY = 'dlmed-supabase-option-order-v1';
   const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
-  function readCache() {
-    try {
-      const raw = localStorage.getItem(CACHE_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function writeCache(value) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch (_) {}
+  async function requireActiveSession() {
+    if (!window.DLMED_AUTH?.ensureActiveSession) throw new Error('Authentification requise.');
+    if (!await window.DLMED_AUTH.ensureActiveSession()) throw new Error('Session inactive. Reconnecte-toi pour continuer.');
   }
 
   function readOrders() {
@@ -48,7 +39,7 @@
     return { choices, mode };
   }
 
-  function normalize(data, cached = false) {
+  function normalize(data) {
     const subjects = Array.isArray(data.subjects) ? data.subjects : [];
     const lessons = Array.isArray(data.lessons) ? data.lessons : [];
     const subjectById = new Map(subjects.map(subject => [String(subject.id), subject]));
@@ -84,7 +75,7 @@
         questionCount: counts.get(String(lesson.id)) || 0
       }))
     }));
-    return { subjects, lessons, catalog, questions, cached };
+    return { subjects, lessons, catalog, questions, cached: false };
   }
 
   async function fetchAllQuestions() {
@@ -104,26 +95,20 @@
 
   async function load() {
     if (!client) throw new Error(window.DLMED_SUPABASE_ERROR || 'Client Supabase indisponible.');
-    try {
-      const [subjectResult, lessonResult, questions] = await Promise.all([
-        client.from('subject').select('id,name,description,icon,sort_order').order('sort_order').order('id'),
-        client.from('lessons').select('id,subject_id,title,description,sort_order').order('sort_order').order('id'),
-        fetchAllQuestions()
-      ]);
-      if (subjectResult.error) throw subjectResult.error;
-      if (lessonResult.error) throw lessonResult.error;
-      const data = { subjects: subjectResult.data || [], lessons: lessonResult.data || [], questions };
-      writeCache(data);
-      return normalize(data, false);
-    } catch (error) {
-      const cached = readCache();
-      if (cached) return normalize(cached, true);
-      throw error;
-    }
+    await requireActiveSession();
+    const [subjectResult, lessonResult, questions] = await Promise.all([
+      client.from('subject').select('id,name,description,icon,sort_order').order('sort_order').order('id'),
+      client.from('lessons').select('id,subject_id,title,description,sort_order').order('sort_order').order('id'),
+      fetchAllQuestions()
+    ]);
+    if (subjectResult.error) throw subjectResult.error;
+    if (lessonResult.error) throw lessonResult.error;
+    return normalize({ subjects: subjectResult.data || [], lessons: lessonResult.data || [], questions });
   }
 
   async function grade(questionId, selectedLetters) {
     if (!client) throw new Error(window.DLMED_SUPABASE_ERROR || 'Client Supabase indisponible.');
+    await requireActiveSession();
     const { data, error } = await client.rpc('grade_qcm_question', {
       p_question_id: Number(questionId),
       p_selected_options: selectedLetters

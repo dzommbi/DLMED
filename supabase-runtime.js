@@ -17,6 +17,44 @@
   let loadError = '';
   let grading = false;
   let loadedFromCache = false;
+  let initializePromise = null;
+
+  function isAuthorized() {
+    if (window.DLMED_AUTH?.isAuthorized()) return true;
+    window.DLMED_AUTH?.requestLogin({ mandatory: true });
+    return false;
+  }
+
+  async function hasCurrentServerSession() {
+    if (!isAuthorized()) return false;
+    try { return await window.DLMED_AUTH.ensureActiveSession(); }
+    catch (_) { return false; }
+  }
+
+  function clearProtectedContent() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    resetTimer();
+    questions.splice(0, questions.length);
+    subjects = []; lessons = []; selectedSubjectId = null;
+    MODULES.length = 0; PARTS.length = 0; CATALOG_LESSONS.length = 0;
+    BIOCHIMIE_PARTS.length = 0; PHYSIOPATHOLOGIE_PARTS.length = 0;
+    PSYCHOLOGIE_PARTS.length = 0; SEMIOLOGIE_PARTS.length = 0;
+    sessionModules = []; sessionQuestions = []; sessionActive = false;
+    pendingChoice = null; reviewQueue = []; reviewMode = false;
+    loading = false; loadError = ''; loadedFromCache = false;
+    document.querySelector('#quiz')?.replaceChildren();
+    document.querySelectorAll('.module-list,.bio-lesson-list,.physiopathologie-lesson-list,.psychologie-lesson-list,.radiologie-lesson-list,#modulePickerList').forEach(node => node.replaceChildren());
+    if (document.body.dataset.page === 'quiz') {
+      document.querySelector('#app')?.classList.remove('active');
+      const welcome = document.querySelector('#welcomeScreen');
+      if (welcome) welcome.hidden = false;
+      document.querySelector('#quizLoading')?.remove();
+    }
+    renderModulePicker(); updateSideNav(); updateStats();
+  }
+
+  window.addEventListener('dlmed:auth-locked', clearProtectedContent);
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -113,7 +151,8 @@
     $('#timerPill').textContent = '⏱ 00:00';
   }
 
-  function setPart(part) {
+  async function setPart(part) {
+    if (!await hasCurrentServerSession()) return;
     sessionActive = false; sessionModules = []; sessionQuestions = [];
     selectedPart = part?.key || 'all';
     selectedModule = part?.name || 'Tous les QCM';
@@ -132,6 +171,9 @@
   let svg='<circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M7 12h10"/>';
   if(n.includes('radiologie')){tone='radiology';svg='<rect x="3.5" y="4" width="17" height="15" rx="2"/><path d="M7 15l3-3 2.5 2.5 2-2L19 17M8 8h.01M12 21v-2M8 22h8"/>'}
   else if(n.includes('ecg')){tone='ecg';svg='<path d="M2.5 12h4l2.1-5 4.1 10 2.2-5h6.6"/>'}
+  else if(n.includes('examens complementaires')){tone='exams';svg='<path d="m7 4 5 5-2 2-5-5z"/><path d="m11 10 4 4m-7 1a6 6 0 0 0 10-4m-7 4v2m-3 3h12m-5-3H9a5 5 0 0 0 0 3"/>'}
+  else if(n.includes('observation medicale')){svg='<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4M10 11h5m-5 3h5m-5 3h3"/>'}
+  else if(n.includes('semiologie veineuse')){svg='<path d="M12 21v-7m0 0-5-5m5 5 5-5M7 9V5m10 4V5m-5 5v4m0 0-3 3m3-3 3 3"/><circle cx="7" cy="4" r="1.2"/><circle cx="17" cy="4" r="1.2"/>'}
   else if(n.includes('syndrome coronarien')||n.includes('douleurs thoraciques')||n.includes('marqueurs cardiaques')){tone='sca';svg='<path d="M20.8 8.8c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/><path d="M5 12h4l1.5-3 2.2 6 1.5-3H19"/>'}
   else if(n.includes('artérielle')||n.includes('arterielle')||n.includes('hémodynamique')||n.includes('hemodynamique')){tone='hemo';svg='<path d="M12 21V11m0 0L6 5m6 6 6-6M6 5V3m0 2h2m10-2v2m0-2h-2"/><circle cx="12" cy="16" r="2"/>'}
   else if(n.includes('hydratation')||n.includes('hydrique')){tone='water';svg='<path d="M12 3c-2.4 3.3-6.2 7-6.2 11.1a6.2 6.2 0 0 0 12.4 0C18.2 10 14.4 6.3 12 3Z"/><path d="M9 15c.2 1.4 1.1 2.2 2.5 2.5"/>'}
@@ -162,10 +204,11 @@ function updateSideNav() {
     $('#allNav').classList.toggle('active', selectedPart === 'all' && selectedSubjectId === null && !onlyWrong);
     $('#wrongNav').classList.toggle('active', onlyWrong);
     document.querySelectorAll('.series-nav').forEach(node => {
-      node.onclick = () => setPart(MODULES.find(part => part.key === node.dataset.part));
+      node.onclick = () => { void setPart(MODULES.find(part => part.key === node.dataset.part)); };
     });
     document.querySelectorAll('.module[data-subject-id]').forEach(node => {
-      node.onclick = () => {
+      node.onclick = async () => {
+        if (!await hasCurrentServerSession()) return;
         sessionActive = false; sessionModules = []; sessionQuestions = [];
         selectedPart = 'all'; selectedModule = subjects.find(subject => String(subject.id) === node.dataset.subjectId)?.name || 'Tous les QCM';
         selectedSubjectId = Number(node.dataset.subjectId); onlyWrong = false; resetTimer();
@@ -274,7 +317,8 @@ function updateSideNav() {
     $('#startChosenModules').disabled = loading || !selected.length;
   }
 
-  function startChosenModules() {
+  async function startChosenModules() {
+    if (!await hasCurrentServerSession()) return;
     sessionModules = selectedModules();
     if (!sessionModules.length) return;
     if (document.body.dataset.page === 'home') {
@@ -323,7 +367,8 @@ function updateSideNav() {
     if (next) {
       $('#overlayNext').textContent = `Cliquez pour passer au module suivant : ${next.name}.`;
       continueButton.textContent = 'Next →'; continueButton.style.display = 'inline-flex';
-      continueButton.onclick = () => {
+      continueButton.onclick = async () => {
+        if (!await hasCurrentServerSession()) return;
         overlay.classList.remove('show'); selectedPart = 'all'; selectedModule = 'Tous les QCM'; selectedSubjectId = null; onlyWrong = false;
         reviewMode = false; reviewQueue = []; current = firstQuestion(next); activePartKey = null; navWindowStart = 0; render();
       };
@@ -333,7 +378,8 @@ function updateSideNav() {
     }
   }
 
-  function openGpt(question, chosen) {
+  async function openGpt(question, chosen) {
+    if (!await hasCurrentServerSession()) return;
     const choiceList = Array.isArray(chosen) ? chosen : [chosen];
     const correct = answers[question.id]?.correctChoices || [];
     const prompt = `Je révise un QCM de médecine en 3e année. Explique-moi pourquoi ma réponse est fausse et pourquoi la bonne réponse est correcte, en français simple.\n\nQuestion : ${question.text}\n${question.options.map((option, index) => `${letters[index]}. ${option}`).join('\n')}\n\nMa réponse : ${choiceList.map(index => `${letters[index]}. ${question.options[index]}`).join(' ; ')}\nRéponse(s) correcte(s) : ${correct.map(index => `${letters[index]}. ${question.options[index]}`).join(' ; ')}\nExplication : ${answers[question.id]?.explanation || ''}`;
@@ -341,11 +387,12 @@ function updateSideNav() {
   }
 
   function render() {
+    if (!isAuthorized()) return;
     updateSideNav(); updateStats();
     const pool = visible();
     if (!pool.length) {
       $('#quiz').innerHTML = `<div class="empty"><h3>${onlyWrong ? 'Rien à revoir pour le moment 🎉' : 'Aucune question disponible'}</h3><p>${onlyWrong ? 'Les questions répondues incorrectement apparaîtront ici.' : escapeHtml(EMPTY_MESSAGE)}</p><button class="btn primary" id="backAll">Voir toutes les matières</button></div>`;
-      $('#backAll').onclick = () => { selectedSubjectId = null; selectedPart = 'all'; selectedModule = 'Tous les QCM'; onlyWrong = false; current = questions[0]?.id || 0; render(); };
+      $('#backAll').onclick = async () => { if (!await hasCurrentServerSession()) return; selectedSubjectId = null; selectedPart = 'all'; selectedModule = 'Tous les QCM'; onlyWrong = false; current = questions[0]?.id || 0; render(); };
       $('#jumpGrid').innerHTML = ''; $('#jumpPrev').disabled = true; $('#jumpNext').disabled = true; return;
     }
     let question = pool.find(item => item.id === current) || pool[0];
@@ -372,8 +419,9 @@ function updateSideNav() {
     $('#quiz').innerHTML = `<div class="quiz-head"><span class="tag">${escapeHtml(question.module)}</span><span class="q-count">${reviewMode ? `Révision des erreurs · ${reviewQueue.indexOf(question.id) + 1}/${reviewQueue.length}` : `Question ${qNumber} / ${partCount}`}</span></div><div class="progress"><span style="width:${scopedProgressPercent()}%"></span></div><h2 class="question">${escapeHtml(question.text)}</h2><div class="answers">${optionHtml}</div>${explanation}<div class="quiz-footer"><span class="quiet">${previous ? 'Réponse enregistrée sur cet appareil.' : selectedLabel}</span><button class="btn primary" type="button" id="${previous ? 'nextBtn' : 'confirmBtn'}" ${!previous && !selected.length ? 'disabled' : ''}>${previous ? nextLabel : (grading ? 'Correction…' : 'Confirmer ma réponse')} →</button></div>`;
 
     document.querySelectorAll('.answer').forEach(button => {
-      button.onclick = () => {
+      button.onclick = async () => {
         if (previous || grading) return;
+        if (!await hasCurrentServerSession()) return;
         const index = Number(button.dataset.choice);
         if ((blurredOptions[question.id] || []).includes(index)) return;
         const selectedSet = new Set(selected);
@@ -407,14 +455,15 @@ function updateSideNav() {
     $('#jumpGrid').innerHTML = partQuestions.slice(navWindowStart, navWindowStart + 10).map(item => `<button class="jump ${item.id === question.id ? 'current' : ''} ${answers[item.id] ? (answers[item.id].recovered ? 'recovered' : answers[item.id].correct ? 'done' : 'wrong') : ''}" type="button" data-id="${item.id}">${localNumber(item)}</button>`).join('');
     const strip = $('#jumpGrid');
     if (lastRenderedNavWindow !== navWindowStart) { strip.classList.remove('slide'); void strip.offsetWidth; strip.classList.add('slide'); lastRenderedNavWindow = navWindowStart; }
-    document.querySelectorAll('.jump').forEach(button => { button.onclick = () => { current = Number(button.dataset.id); pendingChoice = null; render(); }; });
+    document.querySelectorAll('.jump').forEach(button => { button.onclick = async () => { if (!await hasCurrentServerSession()) return; current = Number(button.dataset.id); pendingChoice = null; render(); }; });
     $('#jumpPrev').disabled = currentIndex <= 0;
     $('#jumpNext').disabled = currentIndex < 0 || currentIndex >= partQuestions.length - 1;
-    $('#jumpPrev').onclick = () => { if (currentIndex > 0) { current = partQuestions[currentIndex - 1].id; pendingChoice = null; if (currentIndex - 1 < navWindowStart) navWindowStart = Math.max(0, navWindowStart - 1); render(); } };
-    $('#jumpNext').onclick = () => { if (currentIndex >= 0 && currentIndex < partQuestions.length - 1) { current = partQuestions[currentIndex + 1].id; pendingChoice = null; if (currentIndex + 1 >= navWindowStart + 10) navWindowStart = Math.min(currentIndex - 8, maxStart); render(); } };
+    $('#jumpPrev').onclick = async () => { if (currentIndex > 0 && await hasCurrentServerSession()) { current = partQuestions[currentIndex - 1].id; pendingChoice = null; if (currentIndex - 1 < navWindowStart) navWindowStart = Math.max(0, navWindowStart - 1); render(); } };
+    $('#jumpNext').onclick = async () => { if (currentIndex >= 0 && currentIndex < partQuestions.length - 1 && await hasCurrentServerSession()) { current = partQuestions[currentIndex + 1].id; pendingChoice = null; if (currentIndex + 1 >= navWindowStart + 10) navWindowStart = Math.min(currentIndex - 8, maxStart); render(); } };
   }
 
   async function confirmAnswer(question) {
+    if (!isAuthorized()) return;
     if (grading || answers[question.id] || pendingChoice?.id !== question.id) return;
     const displayChoices = Array.isArray(pendingChoice.choice) ? pendingChoice.choice : [pendingChoice.choice];
     if (!displayChoices.length || displayChoices.some(index => !Number.isInteger(index) || index < 0 || index > 4)) return;
@@ -441,13 +490,15 @@ function updateSideNav() {
       if (!correct) shakeWrongAnswer();
     } catch (error) {
       grading = false;
+      if (!window.DLMED_AUTH?.isAuthorized()) return;
       toast('La correction n’a pas pu être récupérée. Vérifie ta connexion ou la configuration du RPC Supabase.');
       render();
       const button = $('#confirmBtn'); if (button) button.disabled = false;
     }
   }
 
-  function move(pool, id) {
+  async function move(pool, id) {
+    if (!await hasCurrentServerSession()) return;
     const part = getPartForId(id);
     if (!part) return;
     if (reviewMode) {
@@ -492,11 +543,17 @@ function updateSideNav() {
   }
 
   function bindNavigation() {
-    $('#allNav').onclick = () => { sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedModule = 'Tous les QCM'; selectedSubjectId = null; onlyWrong = false; resetTimer(); current = questions[0]?.id || 0; pendingChoice = null; render(); };
-    $('#wrongNav').onclick = () => { sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedModule = 'Tous les QCM'; selectedSubjectId = null; onlyWrong = true; navWindowStart = 0; resetTimer(); current = questions.find(question => answers[question.id] && !answers[question.id].correct)?.id || questions[0]?.id || 0; render(); };
-    $('#partSelect').onchange = () => { const part = MODULES.find(item => item.key === $('#partSelect').value); if (part) setPart(part); else { sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedSubjectId = null; selectedModule = 'Tous les QCM'; onlyWrong = false; resetTimer(); current = questions[0]?.id || 0; render(); } };
+    $('#allNav').onclick = async () => { if (!await hasCurrentServerSession()) return; sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedModule = 'Tous les QCM'; selectedSubjectId = null; onlyWrong = false; resetTimer(); current = questions[0]?.id || 0; pendingChoice = null; render(); };
+    $('#wrongNav').onclick = async () => { if (!await hasCurrentServerSession()) return; sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedModule = 'Tous les QCM'; selectedSubjectId = null; onlyWrong = true; navWindowStart = 0; resetTimer(); current = questions.find(question => answers[question.id] && !answers[question.id].correct)?.id || questions[0]?.id || 0; render(); };
+    $('#partSelect').onchange = async () => {
+      const part = MODULES.find(item => item.key === $('#partSelect').value);
+      if (part) { await setPart(part); return; }
+      if (!await hasCurrentServerSession()) return;
+      sessionActive = false; sessionModules = []; sessionQuestions = []; selectedPart = 'all'; selectedSubjectId = null; selectedModule = 'Tous les QCM'; onlyWrong = false; resetTimer(); current = questions[0]?.id || 0; render();
+    };
     $('#startChosenModules').onclick = startChosenModules;
-    $('#resetBtn').onclick = () => {
+    $('#resetBtn').onclick = async () => {
+      if (!await hasCurrentServerSession()) return;
       if (!confirm('Effacer toutes les réponses et la progression enregistrées sur cet appareil ?')) return;
       answers = {}; try { localStorage.removeItem(DATA_ERROR_KEY); } catch (_) {}
       persistSupabaseProgress(); current = questions[0]?.id || 0; pendingChoice = null; reviewMode = false; reviewQueue = []; resetTimer(); render(); toast('Progression réinitialisée');
@@ -521,10 +578,18 @@ function updateSideNav() {
     startChosenModules();
   }
   async function initialize() {
-    $('#moduleSelectionSummary').textContent = 'Connexion à Supabase…';
-    $('#startChosenModules').disabled = true;
-    try {
-      const result = await DLMED_DATA.load();
+    if (initializePromise) return initializePromise;
+    initializePromise = (async () => {
+      const authState = await window.DLMED_AUTH?.ready;
+      if (authState !== 'active' || !window.DLMED_AUTH?.isAuthorized()) {
+        loading = false;
+        $('#startChosenModules').disabled = true;
+        return;
+      }
+      $('#moduleSelectionSummary').textContent = 'Connexion à Supabase…';
+      $('#startChosenModules').disabled = true;
+      try {
+        const result = await DLMED_DATA.load();
       subjects = result.subjects || []; lessons = result.lessons || []; loadedFromCache = Boolean(result.cached);
       questions.splice(0, questions.length, ...result.questions);
       MODULES.length = 0; PARTS.length = 0; CATALOG_LESSONS.length = 0; BIOCHIMIE_PARTS.length = 0; PHYSIOPATHOLOGIE_PARTS.length = 0; PSYCHOLOGIE_PARTS.length = 0; SEMIOLOGIE_PARTS.length = 0;
@@ -569,18 +634,22 @@ function updateSideNav() {
       loading = false; loadError = '';
       if (!questions.length) loadError = '';
       renderModulePicker(); bindNavigation(); updateSideNav(); updateStats();
-      if (loadedFromCache) toast('Affichage hors ligne : données Supabase en cache.');
+      if (!window.DLMED_AUTH?.isAuthorized()) { clearProtectedContent(); return; }
       if (!questions.length) { if (document.body.dataset.page === 'quiz') { $('#welcomeScreen').hidden = true; $('#app').classList.add('active'); document.querySelector('#quizLoading')?.remove(); }
         $('#quiz').innerHTML = `<div class="empty"><h3>La banque Supabase est vide</h3><p>${escapeHtml(EMPTY_MESSAGE)}</p></div>`;
       } else if (document.body.dataset.page === 'quiz') { restoreSelectedSession(); }
-    } catch (error) {
-      loading = false;
-      loadError = error?.message || 'connexion impossible';
-      if (document.body.dataset.page === 'quiz') { $('#welcomeScreen').hidden = true; $('#app').classList.add('active'); document.querySelector('#quizLoading')?.remove(); }
-      renderModulePicker(); updateSideNav(); updateStats();
-      $('#quiz').innerHTML = `<div class="empty"><h3>Impossible de charger la banque Supabase</h3><p>${escapeHtml(loadError)}</p><button class="btn primary" id="retrySupabase">Réessayer</button></div>`;
-      $('#retrySupabase').onclick = () => { loading = true; loadError = ''; renderModulePicker(); initialize(); };
-    }
+      } catch (error) {
+        if (!window.DLMED_AUTH?.isAuthorized()) { clearProtectedContent(); return; }
+        loading = false;
+        loadError = error?.message || 'connexion impossible';
+        if (document.body.dataset.page === 'quiz') { $('#welcomeScreen').hidden = true; $('#app').classList.add('active'); document.querySelector('#quizLoading')?.remove(); }
+        renderModulePicker(); updateSideNav(); updateStats();
+        $('#quiz').innerHTML = `<div class="empty"><h3>Impossible de charger la banque Supabase</h3><p>${escapeHtml(loadError)}</p><button class="btn primary" id="retrySupabase">Réessayer</button></div>`;
+        $('#retrySupabase').onclick = () => { loading = true; loadError = ''; renderModulePicker(); initialize(); };
+      }
+    })();
+    try { return await initializePromise; }
+    finally { initializePromise = null; }
   }
 
   window.partFor = getPartForId;

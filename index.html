@@ -11,25 +11,41 @@
   gtag('config', 'G-X7KN5BZ1SM');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#f5f8fc"><link rel="manifest" href="./manifest.json"><link rel="icon" type="image/png" href="./favicon.png" sizes="192x192"><link rel="apple-touch-icon" sizes="192x192" href="./dlmed-icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>DLMED — Plateforme de révision médicale et QCM expliqués</title>
+<meta name="theme-color" content="#f5f8fc">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/x-icon" href="./favicon.ico">
+<link rel="icon" type="image/png" href="./favicon.png" sizes="512x512">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DLMed">
+<title>DLMed — Plateforme de révision médicale et QCM expliqués</title>
 <meta name="description" content="Révise avec DLMED : une plateforme de révision médicale proposant des QCM, des réponses expliquées et des modules d’étude pour les étudiants en médecine.">
 <link rel="canonical" href="https://dlmed.fyi/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
-<meta property="og:site_name" content="DLMED">
+<meta property="og:site_name" content="DLMed">
 <meta property="og:url" content="https://dlmed.fyi/">
-<meta property="og:title" content="DLMED — Plateforme de révision médicale et QCM expliqués">
+<meta property="og:title" content="DLMed — Plateforme de révision médicale et QCM expliqués">
 <meta property="og:description" content="Révise avec DLMED : QCM médicaux avec corrections expliquées et modules d’étude organisés pour les étudiants en médecine.">
 <meta property="og:image" content="https://dlmed.fyi/dlmed-icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta property="og:image:alt" content="Icône DLMED, plateforme de révision médicale">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="DLMED — Plateforme de révision médicale et QCM expliqués">
+<meta name="twitter:title" content="DLMed — Plateforme de révision médicale et QCM expliqués">
 <meta name="twitter:description" content="Révise avec des QCM médicaux corrigés et des modules d’étude organisés par matière avec DLMED.">
 <meta name="twitter:image" content="https://dlmed.fyi/dlmed-icon-512.png">
 <meta name="twitter:image:alt" content="Icône DLMED, plateforme de révision médicale">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DLMed",
+  "alternateName": "DLMED",
+  "url": "https://dlmed.fyi/"
+}
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 :root{--ink:#17283f;--muted:#718096;--line:#e7edf4;--paper:#fff;--bg:#f5f8fc;--blue:#326de6;--teal:#20a895;--green:#178765;--red:#cc5360;--shadow:0 16px 42px #2036540d}
@@ -612,6 +628,12 @@
 <!-- Cloudflare Web Analytics -->
 <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token":"a268d1df5faa42bbbeef91ee66fb59cc"}'></script>
 <!-- End Cloudflare Web Analytics -->
+<style>
+.site-legal-footer{max-width:1200px;margin:28px auto 0;padding:18px 28px calc(24px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:14px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+.site-legal-footer p{margin:0;line-height:1.5}.site-legal-footer__links{display:flex;flex-wrap:wrap;gap:10px 20px}
+.site-legal-footer a{color:inherit;text-decoration:none;transition:color .16s ease}.site-legal-footer a:hover,.site-legal-footer a:focus-visible{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:600px){.site-legal-footer{align-items:flex-start;flex-direction:column;padding:16px 18px calc(22px + env(safe-area-inset-bottom))}.site-legal-footer__links{gap:10px 16px}}
+</style>
 </head>
 <body data-page="home">
 <main class="welcome-screen" id="welcomeScreen">
@@ -709,7 +731,7 @@
 <section class="stats"><div class="card stat"><div class="stat-icon">▤</div><div><div class="stat-label">Questions disponibles</div><div class="stat-value" id="totalStat">350</div></div></div><div class="card stat"><div class="stat-icon">✓</div><div><div class="stat-label">Réponses correctes</div><div class="stat-value" id="correctStat">0</div></div></div><div class="card stat"><div class="stat-icon">◷</div><div><div class="stat-label">Progression</div><div class="stat-value" id="progressStat">0%</div></div></div></section>
 <div class="content-grid"><section class="card quiz" id="quiz"></section><aside class="side-panel"><section class="card panel"><div class="panel-title">Navigation rapide</div><div class="jump-nav"><button class="jump-arrow" id="jumpPrev" aria-label="Question précédente" title="Question précédente">‹</button><div class="jump-grid" id="jumpGrid"></div><button class="jump-arrow" id="jumpNext" aria-label="Question suivante" title="Question suivante">›</button></div></section><section class="card panel"><div class="panel-title">Ta progression</div><div class="donut-wrap"><div class="donut" id="donut"><b id="donutPct">0%</b></div><div class="donut-note"><b id="doneCount">0 / 350</b><br>questions répondues</div></div></section></aside></div></main>
 </div></div><div class="overlay" id="sectionOverlay"><div class="overlay-card"><div class="eyebrow">Fin de la section</div><h2 id="overlayTitle"></h2><p id="overlayScore"></p><p id="overlayElapsed"></p><p id="overlayNext"></p><button class="btn primary" id="continueSection" style="display:none">ابدأ القسم التالي →</button><button class="btn primary" id="restartCourse" style="display:none">Choisir d’autres modules</button></div></div><div class="toast" id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase-config.js"></script><script src="./supabase-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase-config.js"></script><script src="./supabase-auth.js"></script><script src="./supabase-data.js"></script>
 <script>
 const questions = [];const STORAGE='medqcm-v1';let saved={};try{saved=JSON.parse(localStorage.getItem(STORAGE)||'{}')}catch(e){};const savedNumberingVersion=Number(saved.numberingVersion)||0;let answers=saved.answers||{};function migratedQuestionId(value){let id=Number(value);if(savedNumberingVersion>=3)return id>=71?id-30:id>=41?null:id;if(savedNumberingVersion<2&&id>=21)id+=20;return id}if(savedNumberingVersion!==2){const moved={};Object.entries(answers).forEach(([id,value])=>{const newId=migratedQuestionId(id);if(newId!==null)moved[newId]=value});answers=moved;if(Array.isArray(saved.extra))saved.extra=saved.extra.map(q=>({...q,id:migratedQuestionId(q.id)})).filter(q=>q.id!==null)};if(saved.hemoRevision!==2){for(let id=161;id<=190;id++)delete answers[id]};let current=1;let pendingChoice=null;let reviewQueue=[];let reviewMode=false;let navWindowStart=0;let sectionAnswerCount=0;let lastRenderedNavWindow=null;let blurredOptions={};let selectedModule='Tous les QCM';let selectedPart='all';let onlyWrong=false;let sessionActive=false;let sessionModules=[];let sessionQuestions=[];let soundEnabled=localStorage.getItem('medqcm-sound')!=='off';let audioContext;
 const $=s=>document.querySelector(s);const letters=['A','B','C','D','E'];
@@ -804,4 +826,4 @@ $('#allNav').onclick=()=>{selectedModule='Tous les QCM';selectedPart='all';onlyW
 $('#pauseTimerBtn').onclick=toggleTimerPause;$('#partSelect').onchange=()=>{selectedPart=$('#partSelect').value;selectedModule='Tous les QCM';onlyWrong=false;clearInterval(timerInterval);activePartKey=null;sectionStartedAt=null;timerPaused=false;$('#pauseTimerBtn').disabled=true;$('#timerPill').textContent='⏱ 00:00';const [start,end]=partRange(selectedPart);current=questions.find(q=>q.id>=start&&q.id<=end)?.id||start;render()};function updateSoundButton(){const b=$('#soundBtn');b.textContent=soundEnabled?'🔊 Son activé':'🔇 Son désactivé';b.title=soundEnabled?'Désactiver les sons':'Activer les sons';b.setAttribute('aria-pressed',String(soundEnabled))}$('#soundBtn').onclick=()=>{soundEnabled=!soundEnabled;localStorage.setItem('medqcm-sound',soundEnabled?'on':'off');updateSoundButton();toast(soundEnabled?'Sons activés':'Sons désactivés')};updateSoundButton();
 if('serviceWorker'in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('./sw.js').catch(()=>{});renderModulePicker();list();stats();requestAnimationFrame(animateWelcomeEntrance);</script><script src="./supabase-runtime.js"></script><script>const themeButtons=document.querySelectorAll("[data-theme-value]");function applyTheme(value,persist=true){const theme=value==="night"?"night":"day";document.documentElement.dataset.theme=theme;themeButtons.forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.themeValue===theme)));if(persist){try{localStorage.setItem("dlmed-theme",theme)}catch(error){}}}themeButtons.forEach(button=>button.addEventListener("click",()=>applyTheme(button.dataset.themeValue)));applyTheme(document.documentElement.dataset.theme||"day",false);const homeBrand=document.getElementById("homeBrand");homeBrand.addEventListener("click",event=>{if(event.target.closest("a"))return;returnToWelcome()});homeBrand.addEventListener("keydown",event=>{if(event.target.closest("a"))return;if(event.key==="Enter"||event.key===" "){event.preventDefault();returnToWelcome()}});const psychologieToggle=document.getElementById("psychologieToggle"),psychologieLessons=document.getElementById("psychologieLessons");psychologieToggle.addEventListener("click",()=>toggleAnimatedPanel(psychologieToggle,psychologieLessons))</script><script>
 document.querySelectorAll('.picker-folder').forEach(details=>{const summary=details.querySelector(':scope > .picker-folder-summary'),content=details.querySelector(':scope > .picker-folder-content');if(!summary||!content)return;let closingTimer=null;summary.addEventListener('click',event=>{event.preventDefault();if(closingTimer){clearTimeout(closingTimer);closingTimer=null;details.classList.remove('accordion-closing');content.style.removeProperty('--accordion-content-height');return}if(details.open){content.style.setProperty('--accordion-content-height',content.scrollHeight+'px');details.classList.add('accordion-closing');closingTimer=setTimeout(()=>{details.open=false;details.classList.remove('accordion-closing');content.style.removeProperty('--accordion-content-height');closingTimer=null},window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:260)}else{details.open=true}})});
-</script><script src="./visitor-counter-config.js"></script><script src="./visitor-counter.js"></script></body></html>
+</script><script src="./visitor-counter-config.js"></script><script src="./visitor-counter.js"></script><footer class="site-legal-footer" aria-label="Informations légales"><p>DLMed · Révision médicale</p><nav class="site-legal-footer__links" aria-label="Pages légales"><a href="./privacy/">Confidentialité</a><a href="./terms/">Conditions d’utilisation</a><a href="https://t.me/Dzombi6" target="_blank" rel="noopener noreferrer">Contacter l’administrateur</a></nav></footer></body></html>
