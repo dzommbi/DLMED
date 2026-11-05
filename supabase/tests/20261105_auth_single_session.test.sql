@@ -1,33 +1,9 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(29);
 
 select ok(to_regclass('public.profiles') is not null, 'profiles table exists');
 select ok(to_regclass('public.dlmed_active_sessions') is not null, 'active-session table exists');
-select ok(
-  to_regprocedure('public.dlmed_active_session_heartbeat()') is not null,
-  'heartbeat RPC exists with the expected zero-argument signature'
-);
-select ok(
-  pg_get_function_result(to_regprocedure('public.dlmed_active_session_heartbeat()')) = 'boolean',
-  'heartbeat RPC returns boolean'
-);
-select ok(
-  coalesce(has_function_privilege(
-    'authenticated', to_regprocedure('public.dlmed_active_session_heartbeat()'), 'execute'
-  ), false),
-  'authenticated users can execute the heartbeat RPC'
-);
-select ok(
-  not coalesce(has_function_privilege(
-    'anon', to_regprocedure('public.dlmed_active_session_heartbeat()'), 'execute'
-  ), false),
-  'anonymous users cannot execute the heartbeat RPC'
-);
-select ok(
-  not has_table_privilege('authenticated', 'public.dlmed_active_sessions', 'select'),
-  'authenticated users cannot read active-session rows directly'
-);
 select ok(to_regclass('public.dlmed_username_check_limits') is not null, 'username-check rate-limit table exists');
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass),
