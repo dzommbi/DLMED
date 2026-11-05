@@ -402,12 +402,11 @@
         : '';
       sessionStorage.setItem(OAUTH_PENDING_KEY, '1');
       sessionStorage.setItem(OAUTH_PREVIOUS_SESSION_KEY, previousSessionId);
-      const redirect = new URL(window.location.href);
-      ['code', 'error', 'error_description', 'state'].forEach(key => redirect.searchParams.delete(key));
+      const redirectTo = new URL(window.location.pathname, window.location.origin).toString();
       const { error } = await client.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirect.toString(),
+          redirectTo,
           queryParams: { prompt: 'select_account' }
         }
       });
