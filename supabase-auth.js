@@ -20,6 +20,8 @@
   let establishSessionId = '';
   let signingOut = false;
   let mandatoryGate = pageIsQuiz;
+  let authInitialized = false;
+  let pendingLoginRequest = null;
   let focusBeforeDialog = null;
   let resolveReady;
   const ready = new Promise(resolve => { resolveReady = resolve; });
@@ -216,10 +218,21 @@
   function setStatus(next) {
     state = next;
     updateAccountControls();
-    if (['active', 'username_required', 'anonymous', 'locked'].includes(next)) resolveReady(next);
+    if (['active', 'username_required', 'anonymous', 'locked'].includes(next)) {
+      authInitialized = true;
+      resolveReady(next);
+      if (next === 'active' || next === 'username_required') pendingLoginRequest = null;
+    }
   }
 
   function showGate({ message = '', mandatory = false, username = false } = {}) {
+    if (!authInitialized) {
+      pendingLoginRequest = {
+        mandatory: Boolean(mandatory || pageIsQuiz || pendingLoginRequest?.mandatory),
+        message: message || pendingLoginRequest?.message || ''
+      };
+      return;
+    }
     mountGate();
     mandatoryGate = Boolean(mandatory);
     const gate = document.getElementById('dlmedAuthGate');
@@ -542,8 +555,29 @@
   }
 
   function requestLogin({ mandatory = false, message = '' } = {}) {
-    mandatoryGate = Boolean(mandatory || pageIsQuiz);
-    showGate({ mandatory: mandatoryGate, message, username: state === 'username_required' });
+    const request = {
+      mandatory: Boolean(mandatory || pageIsQuiz),
+      message: message || ''
+    };
+    if (!authInitialized) {
+      pendingLoginRequest = {
+        mandatory: request.mandatory || pendingLoginRequest?.mandatory || false,
+        message: request.message || pendingLoginRequest?.message || ''
+      };
+      return;
+    }
+    if (state === 'active') {
+      pendingLoginRequest = null;
+      return;
+    }
+    const pending = pendingLoginRequest;
+    pendingLoginRequest = null;
+    mandatoryGate = request.mandatory || pending?.mandatory || false;
+    showGate({
+      mandatory: mandatoryGate,
+      message: request.message || pending?.message || '',
+      username: state === 'username_required'
+    });
   }
 
   async function ensureActiveSession() {
@@ -597,6 +631,8 @@
 
   window.DLMED_AUTH = Object.freeze({
     ready,
+    authReady: ready,
+    get authInitialized() { return authInitialized; },
     get state() { return state; },
     get username() { return activeUsername; },
     isAuthorized: () => state === 'active',
@@ -622,7 +658,7 @@
         if (pageIsQuiz || window.DLMED_OAUTH_ERROR) {
           requestLogin({ mandatory: pageIsQuiz, message: window.DLMED_OAUTH_ERROR ? frenchError(window.DLMED_OAUTH_ERROR) : '' });
           clearOAuthPending();
-        }
+        } else if (pendingLoginRequest) requestLogin(pendingLoginRequest);
         return;
       }
       return establish(data.session).catch(async sessionError => {
