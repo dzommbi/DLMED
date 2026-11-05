@@ -546,11 +546,10 @@
       if (!await window.DLMED_AUTH.ensureActiveSession()) throw new Error('SESSION_REVOKED');
       activeUsername = data.username || value;
       setStatus('active');
-      hideGateAfterAuthentication();
-      dispatchAuthorized();
-      startHeartbeat();
-      if (window.DLMED_UI?.initialize) await window.DLMED_UI.initialize();
-      resumeIntent();
+      setUsernameStatus('Username enregistré. Actualisation du catalogue…', 'success');
+      if (button) { button.disabled = true; button.innerHTML = '<span class="dlmed-auth-spinner" aria-hidden="true"></span>Chargement…'; }
+      window.location.reload();
+      return;
     } catch (error) {
       if (await isSessionRevokedError(error)) await forceLocalSignOut(INVALID_SESSION_MESSAGE);
       else setUsernameStatus(frenchError(error), 'error');
