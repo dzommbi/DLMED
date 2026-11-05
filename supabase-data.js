@@ -103,6 +103,9 @@
     ]);
     if (subjectResult.error) throw subjectResult.error;
     if (lessonResult.error) throw lessonResult.error;
+    // Do not publish a catalogue if the single-device session expired while the
+    // parallel Supabase reads were in flight.
+    await requireActiveSession();
     return normalize({ subjects: subjectResult.data || [], lessons: lessonResult.data || [], questions });
   }
 

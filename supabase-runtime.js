@@ -14,6 +14,7 @@
   let lessons = [];
   let selectedSubjectId = null;
   let loading = true;
+  let dataLoaded = false;
   let loadError = '';
   let grading = false;
   let loadedFromCache = false;
@@ -42,7 +43,7 @@
     PSYCHOLOGIE_PARTS.length = 0; SEMIOLOGIE_PARTS.length = 0;
     sessionModules = []; sessionQuestions = []; sessionActive = false;
     pendingChoice = null; reviewQueue = []; reviewMode = false;
-    loading = false; loadError = ''; loadedFromCache = false;
+    loading = false; dataLoaded = false; loadError = ''; loadedFromCache = false;
     document.querySelector('#quiz')?.replaceChildren();
     document.querySelectorAll('.module-list,.bio-lesson-list,.physiopathologie-lesson-list,.psychologie-lesson-list,.radiologie-lesson-list,#modulePickerList').forEach(node => node.replaceChildren());
     if (document.body.dataset.page === 'quiz') {
@@ -125,6 +126,15 @@
   }
 
   function updateStats() {
+    if (!dataLoaded) {
+      $('#totalStat').textContent = '—';
+      $('#correctStat').textContent = '—';
+      $('#progressStat').textContent = '—';
+      $('#doneCount').textContent = '— / —';
+      $('#donutPct').textContent = '—';
+      $('#donut').style.setProperty('--pct', 0);
+      return;
+    }
     const scope = progressionScope();
     const scopeAnswered = scope.filter(question => answers[question.id]).length;
     const correctCount = Object.values(answers).filter(answer => answer?.correct).length;
@@ -193,8 +203,20 @@ function updateSideNav() {
     const seriesSection = document.querySelector('.sidebar .side-card:nth-child(2)');
     if (seriesSection) {
       seriesSection.querySelector('.eyebrow').textContent = 'Leçons';
-      seriesSection.querySelectorAll('.series-nav').forEach(node => node.remove());
-      seriesSection.insertAdjacentHTML('beforeend', MODULES.map(part => `<div class="nav-item series-nav ${selectedPart === part.key ? 'active' : ''}" data-part="${escapeHtml(part.key)}"><span class="nav-icon">${moduleVisual(part.name)}</span>${escapeHtml(part.name)} <span class="count">${part.count}</span></div>`).join(''));
+      seriesSection.querySelectorAll('.series-nav,.series-loading').forEach(node => node.remove());
+      if (dataLoaded) {
+        seriesSection.insertAdjacentHTML('beforeend', MODULES.map(part => `<div class="nav-item series-nav ${selectedPart === part.key ? 'active' : ''}" data-part="${escapeHtml(part.key)}"><span class="nav-icon">${moduleVisual(part.name)}</span>${escapeHtml(part.name)} <span class="count">${part.count}</span></div>`).join('') || '<p class="quiet series-loading">Aucun module disponible.</p>');
+      } else {
+        const status = document.createElement('p'); status.className = 'quiet series-loading'; status.textContent = catalogStatus(); seriesSection.appendChild(status);
+      }
+    }
+    if (!dataLoaded) {
+      $('#moduleList').innerHTML = `<p class="quiet">${escapeHtml(catalogStatus())}</p>`;
+      $('#allNav').classList.toggle('active', selectedPart === 'all' && selectedSubjectId === null && !onlyWrong);
+      $('#wrongNav').classList.toggle('active', onlyWrong);
+      const partSelect = $('#partSelect');
+      if (partSelect) { partSelect.innerHTML = '<option value="all">Toutes les matières · —</option>'; partSelect.value = 'all'; }
+      return;
     }
     const subjectTotals = subjects.map(subject => ({
       subject,
@@ -232,15 +254,19 @@ function updateSideNav() {
   }
 
   function renderModulePicker() {
+    const statusMessage = catalogStatus();
     const groupParts = new Map();
     for (const [name, config] of Object.entries(groupClass)) {
       const list = document.querySelector(config.list);
       if (!list) continue;
-      const items = CATALOG_LESSONS.filter(part => part.group === name);
+      const items = dataLoaded ? CATALOG_LESSONS.filter(part => part.group === name) : [];
       groupParts.set(name, items);
-      list.innerHTML = items.map(part => lessonMarkup(part, name)).join('') || (name === 'Radiologie' ? '<p class="quiet">Aucun QCM disponible pour le moment.</p>' : '<p class="quiet">Aucun cours enregistré.</p>');
+      list.innerHTML = items.map(part => lessonMarkup(part, name)).join('') || `<p class="quiet">${escapeHtml(dataLoaded ? (name === 'Radiologie' ? 'Aucun QCM disponible pour le moment.' : 'Aucun cours enregistré.') : statusMessage)}</p>`;
     }
-    for (const subject of subjects) {
+    document.querySelectorAll('.cardio-subject-row .biochimie-total,.psychologie-total,.semiology-qsm-total').forEach(badge => {
+      badge.textContent = dataLoaded ? '0 QCM' : '—';
+    });
+    for (const subject of dataLoaded ? subjects : []) {
       const name = subjectGroup(subject.name);
       if (!groupClass[name]) continue;
       const count = questions.filter(question => question.subjectId === Number(subject.id)).length;
@@ -250,12 +276,12 @@ function updateSideNav() {
       if (name === 'Sémiologie') $('#semiologyTotal').textContent = `${count} QCM`;
     }
     const radioSubject = subjects.find(subject => subjectGroup(subject.name) === 'Radiologie');
-    const radioCount = radioSubject ? questions.filter(question => question.subjectId === Number(radioSubject.id)).length : 0;
+    const radioCount = dataLoaded && radioSubject ? questions.filter(question => question.subjectId === Number(radioSubject.id)).length : 0;
     const radioRow = document.querySelector('.cardio-subject-row--radio');
     if (radioRow) {
       let badge = radioRow.querySelector('.radio-total');
       if (!badge) { badge = document.createElement('span'); badge.className = 'biochimie-total radio-total'; radioRow.appendChild(badge); }
-      badge.textContent = `${radioCount} QCM`;
+      badge.textContent = dataLoaded ? `${radioCount} QCM` : '—';
     }
     document.querySelectorAll('.module-pick-check').forEach(input => { input.onchange = updateModulePicker; });
     const selectAll = (selector, inputsSelector) => {
@@ -310,11 +336,37 @@ function updateSideNav() {
       control.indeterminate = eligible.some(part => [...document.querySelectorAll('.module-pick-check:checked')].some(input => String(input.dataset.lessonId) === String(part.lessonId))) && !control.checked;
     }
     const selectedCount = selected.reduce((total, part) => total + part.count, 0);
-    if (loading) $('#moduleSelectionSummary').textContent = 'Connexion à Supabase…';
-    else if (loadError) $('#moduleSelectionSummary').textContent = `Erreur de chargement : ${loadError}`;
-    else if (!questions.length) $('#moduleSelectionSummary').textContent = EMPTY_MESSAGE;
-    else $('#moduleSelectionSummary').textContent = selected.length ? `${selected.length} module${selected.length > 1 ? 's' : ''} · ${selectedCount} QCM sélectionnés` : 'Aucun module sélectionné';
-    $('#startChosenModules').disabled = loading || !selected.length;
+    const summary = $('#moduleSelectionSummary');
+    if (!dataLoaded && loading) summary.textContent = 'Chargement des cours…';
+    else if (loadError) summary.textContent = `Erreur de chargement : ${loadError}`;
+    else if (!dataLoaded) summary.textContent = catalogStatus();
+    else if (!questions.length) summary.textContent = EMPTY_MESSAGE;
+    else summary.textContent = selected.length ? `${selected.length} module${selected.length > 1 ? 's' : ''} · ${selectedCount} QCM sélectionnés` : 'Aucun module sélectionné';
+    let retryButton = $('#retrySupabaseData');
+    if (loadError) {
+      if (!retryButton) {
+        retryButton = document.createElement('button');
+        retryButton.id = 'retrySupabaseData'; retryButton.className = 'btn'; retryButton.type = 'button'; retryButton.textContent = 'Réessayer';
+        summary.insertAdjacentElement('afterend', retryButton);
+      }
+      retryButton.onclick = retryCatalogLoad;
+    } else retryButton?.remove();
+    $('#startChosenModules').disabled = !dataLoaded || loading || !selected.length;
+  }
+
+  function catalogStatus() {
+    if (loadError) return 'Impossible de charger les cours. Vérifie ta connexion puis réessaie.';
+    if (window.DLMED_AUTH?.isAuthorized()) return 'Chargement des cours…';
+    if (['booting', 'checking'].includes(window.DLMED_AUTH?.state)) return 'Vérification de la session…';
+    if (window.DLMED_AUTH?.state === 'username_required') return 'Choisis ton username pour charger les cours.';
+    return 'Connecte-toi pour charger les cours.';
+  }
+
+  function retryCatalogLoad() {
+    loadError = '';
+    loading = true;
+    renderModulePicker(); updateSideNav(); updateStats();
+    void initialize();
   }
 
   async function startChosenModules() {
@@ -578,15 +630,19 @@ function updateSideNav() {
     startChosenModules();
   }
   async function initialize() {
+    if (dataLoaded && window.DLMED_AUTH?.isAuthorized()) return;
     if (initializePromise) return initializePromise;
     initializePromise = (async () => {
-      const authState = await window.DLMED_AUTH?.ready;
-      if (authState !== 'active' || !window.DLMED_AUTH?.isAuthorized()) {
+      await window.DLMED_AUTH?.ready;
+      if (!window.DLMED_AUTH?.isAuthorized()) {
         loading = false;
+        renderModulePicker(); updateSideNav(); updateStats();
         $('#startChosenModules').disabled = true;
         return;
       }
-      $('#moduleSelectionSummary').textContent = 'Connexion à Supabase…';
+      loading = true; loadError = '';
+      renderModulePicker(); updateSideNav(); updateStats();
+      $('#moduleSelectionSummary').textContent = 'Chargement des cours…';
       $('#startChosenModules').disabled = true;
       try {
         const result = await DLMED_DATA.load();
@@ -631,8 +687,7 @@ function updateSideNav() {
         const answer = answers[questionId];
         if (!questions.some(question => String(question.id) === String(questionId)) || !answer || typeof answer.correct !== 'boolean' || !Array.isArray(answer.correctChoices)) delete answers[questionId];
       }
-      loading = false; loadError = '';
-      if (!questions.length) loadError = '';
+      dataLoaded = true; loading = false; loadError = '';
       renderModulePicker(); bindNavigation(); updateSideNav(); updateStats();
       if (!window.DLMED_AUTH?.isAuthorized()) { clearProtectedContent(); return; }
       if (!questions.length) { if (document.body.dataset.page === 'quiz') { $('#welcomeScreen').hidden = true; $('#app').classList.add('active'); document.querySelector('#quizLoading')?.remove(); }
@@ -640,12 +695,13 @@ function updateSideNav() {
       } else if (document.body.dataset.page === 'quiz') { restoreSelectedSession(); }
       } catch (error) {
         if (!window.DLMED_AUTH?.isAuthorized()) { clearProtectedContent(); return; }
-        loading = false;
+        dataLoaded = false; loading = false;
         loadError = error?.message || 'connexion impossible';
         if (document.body.dataset.page === 'quiz') { $('#welcomeScreen').hidden = true; $('#app').classList.add('active'); document.querySelector('#quizLoading')?.remove(); }
         renderModulePicker(); updateSideNav(); updateStats();
         $('#quiz').innerHTML = `<div class="empty"><h3>Impossible de charger la banque Supabase</h3><p>${escapeHtml(loadError)}</p><button class="btn primary" id="retrySupabase">Réessayer</button></div>`;
-        $('#retrySupabase').onclick = () => { loading = true; loadError = ''; renderModulePicker(); initialize(); };
+        $('#retrySupabase').onclick = retryCatalogLoad;
+        renderModulePicker(); updateSideNav(); updateStats();
       }
     })();
     try { return await initializePromise; }
@@ -673,5 +729,6 @@ function updateSideNav() {
   window.list = updateSideNav;
   window.DLMED_UI = Object.freeze({ initialize });
 
-  resetTimer(); bindNavigation(); renderModulePicker(); updateSideNav(); updateStats(); initialize();
+  window.addEventListener('dlmed:auth-authorized', () => { if (!dataLoaded) void initialize(); });
+  resetTimer(); bindNavigation(); renderModulePicker(); updateSideNav(); updateStats(); void initialize();
 })();
