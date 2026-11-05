@@ -57,7 +57,7 @@
     style.textContent = `
       .dlmed-auth-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(12,25,43,.62);backdrop-filter:blur(8px);opacity:1;transition:opacity .22s ease}
       .dlmed-auth-backdrop[hidden]{display:none}
-      .dlmed-auth-close[hidden],#dlmedLoginPanel[hidden],#dlmedUsernamePanel[hidden],#dlmedSignOut[hidden],#dlmedAuthUsername[hidden],.dlmed-account-pill[hidden]{display:none!important}
+      .dlmed-auth-close[hidden],#dlmedLoginPanel[hidden],#dlmedUsernamePanel[hidden],#dlmedSignOut[hidden],#dlmedProfile[hidden],#dlmedProfilePanel[hidden]{display:none!important}
       .dlmed-auth-card{position:relative;width:min(100%,440px);padding:28px;border:1px solid var(--line,#e7edf4);border-radius:24px;background:var(--paper,#fff);color:var(--ink,#17283f);box-shadow:0 26px 90px rgba(7,19,37,.3);animation:dlmedAuthIn .24s cubic-bezier(.2,.8,.2,1) both}
       @keyframes dlmedAuthIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
       .dlmed-auth-close{position:absolute;top:13px;right:13px;width:36px;height:36px;border:1px solid var(--line,#e7edf4);border-radius:12px;background:transparent;color:var(--muted,#718096);font-size:20px}
@@ -81,13 +81,26 @@
       .dlmed-auth-status[data-tone="success"]{color:#168266}
       .dlmed-auth-spinner{display:inline-block;width:15px;height:15px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-3px;animation:dlmedAuthSpin .7s linear infinite}
       @keyframes dlmedAuthSpin{to{transform:rotate(360deg)}}
-      .dlmed-account-pill{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:var(--muted,#718096);font-size:11px}
-      .dlmed-account-pill strong{color:var(--ink,#17283f);font-size:12px}
-      .dlmed-account-logout{padding:2px 4px;border:0;background:transparent;color:var(--blue,#326de6);font-size:11px;font-weight:700}
       .dlmed-username-logout{display:block;margin:3px auto 0;padding:7px;border:0;background:transparent;color:var(--muted,#718096);font-size:11px;font-weight:700}
-      #dlmedSignOut{width:38px;height:38px;padding:0;display:inline-grid;place-items:center;font-size:17px}
-      #dlmedAuthUsername{max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;align-self:center;color:var(--muted,#718096);font-size:11px}
-      @media(max-width:700px){.dlmed-auth-card{padding:23px 19px;border-radius:20px}.dlmed-auth-card h2{font-size:21px}#dlmedAuthUsername{display:none}}
+      .topbar-leading{display:flex;align-items:center;gap:13px;min-width:0}
+      .dlmed-profile{position:relative;z-index:5;flex:none}
+      .dlmed-profile-trigger{width:43px;height:43px;display:grid;place-items:center;padding:0;border:1px solid #d6e3ff;border-radius:50%;background:linear-gradient(145deg,#4c83f4,#2861d6);color:#fff;font:800 15px Manrope,sans-serif;box-shadow:0 5px 14px #326de62b;transition:background .2s,border-color .2s,box-shadow .2s,transform .2s}
+      .dlmed-profile-trigger:hover,.dlmed-profile-trigger[aria-expanded="true"]{border-color:#9be4c9;background:linear-gradient(145deg,#35c18c,#15966c);box-shadow:0 7px 18px #15966c38;transform:translateY(-1px)}
+      .dlmed-profile-trigger:focus-visible{outline:3px solid #32b98766;outline-offset:3px}
+      .dlmed-profile-panel{position:absolute;top:calc(100% + 11px);left:0;width:min(310px,calc(100vw - 28px));padding:16px;border:1px solid var(--line,#e7edf4);border-radius:17px;background:var(--paper,#fff);color:var(--ink,#17283f);box-shadow:0 18px 45px #10233b26;animation:dlmedProfileIn .18s ease both}
+      @keyframes dlmedProfileIn{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+      .dlmed-profile-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+      .dlmed-profile-heading{font:800 13px Manrope,sans-serif}
+      .dlmed-profile-close{width:28px;height:28px;border:0;border-radius:9px;background:transparent;color:var(--muted,#718096);font-size:19px}
+      .dlmed-profile-close:hover{background:var(--bg,#f3f6fb);color:var(--ink,#17283f)}
+      .dlmed-profile-row{padding:10px 11px;border-radius:11px;background:var(--bg,#f6f8fc);overflow:hidden}
+      .dlmed-profile-row+.dlmed-profile-row{margin-top:7px}
+      .dlmed-profile-label{display:block;margin-bottom:4px;color:var(--muted,#718096);font-size:10px;font-weight:700;letter-spacing:.3px}
+      .dlmed-profile-value{display:block;overflow:hidden;color:var(--ink,#17283f);font-size:12px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
+      #dlmedSignOut{flex:none;min-width:0;max-width:100%;white-space:nowrap;border:1px solid #f2c4c8;background:linear-gradient(145deg,#fff6f6,#ffeded);color:#b53c4b;border-radius:11px;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:0 4px 12px #c44c5a12;transition:background .18s,border-color .18s,color .18s,transform .18s,box-shadow .18s}
+      #dlmedSignOut:hover{border-color:#d95765;background:linear-gradient(145deg,#df5965,#bd3545);color:#fff;box-shadow:0 7px 17px #c44c5a35;transform:translateY(-1px)}
+      #dlmedSignOut:focus-visible{outline:3px solid #d9576555;outline-offset:2px}
+      @media(max-width:700px){.dlmed-auth-card{padding:23px 19px;border-radius:20px}.dlmed-auth-card h2{font-size:21px}.topbar-leading{gap:9px}.dlmed-profile-trigger{width:39px;height:39px}.dlmed-profile-panel{top:calc(100% + 8px)}#dlmedSignOut{width:100%;padding:8px 4px;font-size:10px}}
       @media(prefers-reduced-motion:reduce){.dlmed-auth-backdrop,.dlmed-auth-card{animation:none;transition:none}}
     `;
     document.head.append(style);
@@ -136,47 +149,68 @@
   }
 
   function addAccountControls() {
+    const header = document.querySelector('.topbar');
+    const brand = header?.querySelector('.brand');
     const topActions = document.querySelector('.top-actions');
+    if (header && brand && !document.getElementById('dlmedProfile')) {
+      const leading = document.createElement('div');
+      leading.className = 'topbar-leading';
+      header.insertBefore(leading, brand);
+      const profile = document.createElement('div');
+      profile.id = 'dlmedProfile';
+      profile.className = 'dlmed-profile';
+      profile.hidden = true;
+      profile.innerHTML = `
+        <button class="dlmed-profile-trigger" id="dlmedProfileTrigger" type="button" aria-label="Mon compte" aria-expanded="false" aria-controls="dlmedProfilePanel" title="Mon compte"><span id="dlmedProfileInitial">U</span></button>
+        <section class="dlmed-profile-panel" id="dlmedProfilePanel" aria-label="Informations du compte" hidden>
+          <div class="dlmed-profile-head"><strong class="dlmed-profile-heading">Mon compte</strong><button class="dlmed-profile-close" id="dlmedProfileClose" type="button" aria-label="Fermer">×</button></div>
+          <div class="dlmed-profile-row"><span class="dlmed-profile-label">Nom d’utilisateur</span><strong class="dlmed-profile-value" id="dlmedProfileUsername"></strong></div>
+          <div class="dlmed-profile-row"><span class="dlmed-profile-label">Adresse e-mail</span><strong class="dlmed-profile-value" id="dlmedProfileEmail"></strong></div>
+        </section>`;
+      leading.append(profile, brand);
+      const trigger = profile.querySelector('#dlmedProfileTrigger');
+      const panel = profile.querySelector('#dlmedProfilePanel');
+      const closePanel = () => { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); };
+      trigger.addEventListener('click', () => {
+        panel.hidden = !panel.hidden;
+        trigger.setAttribute('aria-expanded', String(!panel.hidden));
+      });
+      profile.querySelector('#dlmedProfileClose').addEventListener('click', closePanel);
+      document.addEventListener('click', event => { if (!profile.contains(event.target)) closePanel(); });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) { closePanel(); trigger.focus(); } });
+    }
     if (topActions && !document.getElementById('dlmedSignOut')) {
-      const name = document.createElement('span');
-      name.id = 'dlmedAuthUsername';
-      name.hidden = true;
       const button = document.createElement('button');
       button.id = 'dlmedSignOut';
-      button.className = 'btn ghost';
+      button.className = 'dlmed-signout-button';
       button.type = 'button';
       button.title = 'Se déconnecter';
       button.setAttribute('aria-label', 'Se déconnecter');
-      button.textContent = '↪';
+      button.textContent = 'Se déconnecter';
       button.hidden = true;
       button.addEventListener('click', logout);
-      topActions.prepend(button);
-      topActions.prepend(name);
-    }
-    const welcomeContact = document.querySelector('.welcome-contact');
-    if (welcomeContact && !document.getElementById('dlmedWelcomeAccount')) {
-      const account = document.createElement('span');
-      account.id = 'dlmedWelcomeAccount';
-      account.className = 'dlmed-account-pill';
-      account.hidden = true;
-      account.innerHTML = '<strong id="dlmedWelcomeUsername"></strong><button class="dlmed-account-logout" type="button">Se déconnecter</button>';
-      account.querySelector('button').addEventListener('click', logout);
-      welcomeContact.append(account);
+      topActions.append(button);
     }
   }
 
   function updateAccountControls() {
     const signedIn = state === 'active';
-    const topName = document.getElementById('dlmedAuthUsername');
+    const profile = document.getElementById('dlmedProfile');
+    const profileTrigger = document.getElementById('dlmedProfileTrigger');
+    const profilePanel = document.getElementById('dlmedProfilePanel');
+    const profileUsername = document.getElementById('dlmedProfileUsername');
+    const profileEmail = document.getElementById('dlmedProfileEmail');
+    const profileInitial = document.getElementById('dlmedProfileInitial');
     const topButton = document.getElementById('dlmedSignOut');
-    const welcome = document.getElementById('dlmedWelcomeAccount');
-    if (topName) { topName.hidden = !signedIn; topName.textContent = activeUsername || ''; }
-    if (topButton) topButton.hidden = !signedIn;
-    if (welcome) {
-      welcome.hidden = !signedIn;
-      const userName = document.getElementById('dlmedWelcomeUsername');
-      if (userName) userName.textContent = activeUsername || '';
+    if (profile) profile.hidden = !signedIn;
+    if (profileUsername) profileUsername.textContent = activeUsername || '';
+    if (profileEmail) profileEmail.textContent = activeUser?.email || 'E-mail indisponible';
+    if (profileInitial) profileInitial.textContent = activeUsername.trim().charAt(0).toLocaleUpperCase('fr') || 'U';
+    if (!signedIn && profilePanel) {
+      profilePanel.hidden = true;
+      profileTrigger?.setAttribute('aria-expanded', 'false');
     }
+    if (topButton) topButton.hidden = !signedIn;
   }
 
   function setStatus(next) {
