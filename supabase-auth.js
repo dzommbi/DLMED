@@ -59,7 +59,7 @@
     style.textContent = `
       .dlmed-auth-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(12,25,43,.62);backdrop-filter:blur(8px);opacity:1;transition:opacity .22s ease}
       .dlmed-auth-backdrop[hidden]{display:none}
-      .dlmed-auth-close[hidden],#dlmedLoginPanel[hidden],#dlmedUsernamePanel[hidden],#dlmedSignOut[hidden],#dlmedProfile[hidden],#dlmedProfilePanel[hidden]{display:none!important}
+      .dlmed-auth-close[hidden],#dlmedLoginPanel[hidden],#dlmedUsernamePanel[hidden],#dlmedSignOut[hidden],#dlmedWelcomeSignOut[hidden],.dlmed-profile[hidden],.dlmed-profile-panel[hidden]{display:none!important}
       .dlmed-auth-card{position:relative;width:min(100%,440px);padding:28px;border:1px solid var(--line,#e7edf4);border-radius:24px;background:var(--paper,#fff);color:var(--ink,#17283f);box-shadow:0 26px 90px rgba(7,19,37,.3);animation:dlmedAuthIn .24s cubic-bezier(.2,.8,.2,1) both}
       @keyframes dlmedAuthIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
       .dlmed-auth-close{position:absolute;top:13px;right:13px;width:36px;height:36px;border:1px solid var(--line,#e7edf4);border-radius:12px;background:transparent;color:var(--muted,#718096);font-size:20px}
@@ -90,9 +90,9 @@
       .dlmed-profile-trigger:hover,.dlmed-profile-trigger[aria-expanded="true"]{border-color:#9be4c9;background:linear-gradient(145deg,#35c18c,#15966c);box-shadow:0 7px 18px #15966c38;transform:translateY(-1px)}
       .dlmed-profile-trigger:focus-visible{outline:3px solid #32b98766;outline-offset:3px}
       .dlmed-profile-trigger-name{display:none;max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .dlmed-profile--quiz .dlmed-profile-trigger{width:auto;min-width:43px;height:42px;display:flex;justify-content:flex-start;gap:9px;padding:0 13px 0 6px;border-radius:14px;font-size:12px}
-      .dlmed-profile--quiz #dlmedProfileInitial{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#ffffff30}
-      .dlmed-profile--quiz .dlmed-profile-trigger-name{display:block}
+      .dlmed-profile--named .dlmed-profile-trigger{width:auto;min-width:43px;height:42px;display:flex;justify-content:flex-start;gap:9px;padding:0 13px 0 6px;border-radius:14px;font-size:12px}
+      .dlmed-profile--named .dlmed-profile-initial{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#ffffff30}
+      .dlmed-profile--named .dlmed-profile-trigger-name{display:block}
       .dlmed-profile-panel{position:absolute;top:calc(100% + 11px);left:0;width:min(310px,calc(100vw - 28px));padding:16px;border:1px solid var(--line,#e7edf4);border-radius:17px;background:var(--paper,#fff);color:var(--ink,#17283f);box-shadow:0 18px 45px #10233b26;animation:dlmedProfileIn .18s ease both}
       @keyframes dlmedProfileIn{from{opacity:0;transform:translateY(-5px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
       .dlmed-profile-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -103,11 +103,12 @@
       .dlmed-profile-row+.dlmed-profile-row{margin-top:7px}
       .dlmed-profile-label{display:block;margin-bottom:4px;color:var(--muted,#718096);font-size:10px;font-weight:700;letter-spacing:.3px}
       .dlmed-profile-value{display:block;overflow:hidden;color:var(--ink,#17283f);font-size:12px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}
-      #dlmedSignOut{flex:none;min-width:0;max-width:100%;white-space:nowrap;border:1px solid #d94c5b;background:linear-gradient(145deg,#e75d6b,#c93c4c);color:#fff;border-radius:11px;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:0 5px 14px #c44c5a30;transition:background .18s,border-color .18s,color .18s,transform .18s,box-shadow .18s}
-      #dlmedSignOut:hover{border-color:#a92e3d;background:linear-gradient(145deg,#c53c4c,#a92e3d);color:#fff;box-shadow:0 7px 17px #c44c5a45;transform:translateY(-1px)}
-      #dlmedSignOut:focus-visible{outline:3px solid #d9576555;outline-offset:2px}
+      #dlmedSignOut,#dlmedWelcomeSignOut{flex:none;min-width:0;max-width:100%;white-space:nowrap;border:1px solid #d94c5b;background:linear-gradient(145deg,#e75d6b,#c93c4c);color:#fff;border-radius:11px;padding:10px 14px;font-size:12px;font-weight:800;box-shadow:0 5px 14px #c44c5a30;transition:background .18s,border-color .18s,color .18s,transform .18s,box-shadow .18s}
+      #dlmedSignOut:hover,#dlmedWelcomeSignOut:hover{border-color:#a92e3d;background:linear-gradient(145deg,#c53c4c,#a92e3d);color:#fff;box-shadow:0 7px 17px #c44c5a45;transform:translateY(-1px)}
+      #dlmedSignOut:focus-visible,#dlmedWelcomeSignOut:focus-visible{outline:3px solid #d9576555;outline-offset:2px}
       @media(min-width:701px) and (max-width:950px){body[data-page="quiz"] .topbar{height:auto;min-height:72px;flex-wrap:wrap;gap:8px;padding-top:8px;padding-bottom:8px}body[data-page="quiz"] .top-actions{flex:1 0 100%;justify-content:flex-end;flex-wrap:wrap}}
-      @media(max-width:700px){.dlmed-auth-card{padding:23px 19px;border-radius:20px}.dlmed-auth-card h2{font-size:21px}.topbar-leading{gap:9px}.dlmed-profile-trigger{width:39px;height:39px}.dlmed-profile--quiz .dlmed-profile-trigger{height:39px;max-width:min(190px,48vw);gap:7px;padding:0 10px 0 5px}.dlmed-profile--quiz #dlmedProfileInitial{width:28px;height:28px}.dlmed-profile-trigger-name{max-width:min(135px,36vw)}.dlmed-profile-panel{top:calc(100% + 8px)}#dlmedSignOut{width:100%;padding:8px 4px;font-size:10px}}
+      @media(max-width:700px){.dlmed-auth-card{padding:23px 19px;border-radius:20px}.dlmed-auth-card h2{font-size:21px}.topbar-leading{gap:9px}.dlmed-profile-trigger{width:39px;height:39px}.dlmed-profile--named .dlmed-profile-trigger{height:39px;max-width:min(190px,48vw);gap:7px;padding:0 10px 0 5px}.dlmed-profile--named .dlmed-profile-initial{width:28px;height:28px}.dlmed-profile--named .dlmed-profile-trigger-name{max-width:min(135px,36vw)}.dlmed-profile--welcome .dlmed-profile-trigger{max-width:min(174px,44vw)}.dlmed-profile--welcome .dlmed-profile-trigger-name{max-width:min(125px,35vw)}.dlmed-profile-panel{top:calc(100% + 8px)}#dlmedSignOut{width:100%;padding:8px 4px;font-size:10px}#dlmedWelcomeSignOut{padding:8px 10px;font-size:10px}}
+      @media(max-width:380px){.dlmed-profile--welcome .dlmed-profile-trigger{max-width:40vw;gap:5px;padding:0 7px 0 4px}.dlmed-profile--welcome .dlmed-profile-trigger-name{max-width:30vw}#dlmedWelcomeSignOut{padding:7px 7px;font-size:9px}}
       @media(prefers-reduced-motion:reduce){.dlmed-auth-backdrop,.dlmed-auth-card{animation:none;transition:none}}
     `;
     document.head.append(style);
@@ -155,6 +156,44 @@
     addAccountControls();
   }
 
+  function createProfileControl(prefix, variant = '') {
+    const profile = document.createElement('div');
+    profile.id = `${prefix}Profile`;
+    profile.className = `dlmed-profile ${variant}`.trim();
+    profile.hidden = true;
+    profile.innerHTML = `
+      <button class="dlmed-profile-trigger" id="${prefix}ProfileTrigger" type="button" aria-label="Mon compte" aria-expanded="false" aria-controls="${prefix}ProfilePanel" title="Mon compte"><span class="dlmed-profile-initial" id="${prefix}ProfileInitial">U</span><span class="dlmed-profile-trigger-name" id="${prefix}ProfileTriggerName"></span></button>
+      <section class="dlmed-profile-panel" id="${prefix}ProfilePanel" aria-label="Informations du compte" hidden>
+        <div class="dlmed-profile-head"><strong class="dlmed-profile-heading">Mon compte</strong><button class="dlmed-profile-close" id="${prefix}ProfileClose" type="button" aria-label="Fermer">×</button></div>
+        <div class="dlmed-profile-row"><span class="dlmed-profile-label">Nom d’utilisateur</span><strong class="dlmed-profile-value" id="${prefix}ProfileUsername"></strong></div>
+        <div class="dlmed-profile-row"><span class="dlmed-profile-label">Adresse e-mail</span><strong class="dlmed-profile-value" id="${prefix}ProfileEmail"></strong></div>
+      </section>`;
+    const trigger = profile.querySelector(`#${prefix}ProfileTrigger`);
+    const panel = profile.querySelector(`#${prefix}ProfilePanel`);
+    const closePanel = () => { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); };
+    trigger.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      trigger.setAttribute('aria-expanded', String(!panel.hidden));
+    });
+    profile.querySelector(`#${prefix}ProfileClose`).addEventListener('click', closePanel);
+    document.addEventListener('click', event => { if (!profile.contains(event.target)) closePanel(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) { closePanel(); trigger.focus(); } });
+    return profile;
+  }
+
+  function createSignOutButton(id) {
+    const button = document.createElement('button');
+    button.id = id;
+    button.className = 'dlmed-signout-button';
+    button.type = 'button';
+    button.title = 'Se déconnecter';
+    button.setAttribute('aria-label', 'Se déconnecter');
+    button.textContent = 'Se déconnecter';
+    button.hidden = true;
+    button.addEventListener('click', logout);
+    return button;
+  }
+
   function addAccountControls() {
     const header = document.querySelector('.topbar');
     const brand = header?.querySelector('.brand');
@@ -163,63 +202,43 @@
       const leading = document.createElement('div');
       leading.className = 'topbar-leading';
       header.insertBefore(leading, brand);
-      const profile = document.createElement('div');
-      profile.id = 'dlmedProfile';
-      profile.className = `dlmed-profile${pageIsQuiz ? ' dlmed-profile--quiz' : ''}`;
-      profile.hidden = true;
-      profile.innerHTML = `
-        <button class="dlmed-profile-trigger" id="dlmedProfileTrigger" type="button" aria-label="Mon compte" aria-expanded="false" aria-controls="dlmedProfilePanel" title="Mon compte"><span id="dlmedProfileInitial">U</span><span class="dlmed-profile-trigger-name" id="dlmedProfileTriggerName"></span></button>
-        <section class="dlmed-profile-panel" id="dlmedProfilePanel" aria-label="Informations du compte" hidden>
-          <div class="dlmed-profile-head"><strong class="dlmed-profile-heading">Mon compte</strong><button class="dlmed-profile-close" id="dlmedProfileClose" type="button" aria-label="Fermer">×</button></div>
-          <div class="dlmed-profile-row"><span class="dlmed-profile-label">Nom d’utilisateur</span><strong class="dlmed-profile-value" id="dlmedProfileUsername"></strong></div>
-          <div class="dlmed-profile-row"><span class="dlmed-profile-label">Adresse e-mail</span><strong class="dlmed-profile-value" id="dlmedProfileEmail"></strong></div>
-        </section>`;
-      leading.append(profile, brand);
-      const trigger = profile.querySelector('#dlmedProfileTrigger');
-      const panel = profile.querySelector('#dlmedProfilePanel');
-      const closePanel = () => { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); };
-      trigger.addEventListener('click', () => {
-        panel.hidden = !panel.hidden;
-        trigger.setAttribute('aria-expanded', String(!panel.hidden));
-      });
-      profile.querySelector('#dlmedProfileClose').addEventListener('click', closePanel);
-      document.addEventListener('click', event => { if (!profile.contains(event.target)) closePanel(); });
-      document.addEventListener('keydown', event => { if (event.key === 'Escape' && !panel.hidden) { closePanel(); trigger.focus(); } });
+      const variant = pageIsQuiz ? 'dlmed-profile--quiz dlmed-profile--named' : '';
+      leading.append(createProfileControl('dlmed', variant), brand);
     }
-    if (topActions && !document.getElementById('dlmedSignOut')) {
-      const button = document.createElement('button');
-      button.id = 'dlmedSignOut';
-      button.className = 'dlmed-signout-button';
-      button.type = 'button';
-      button.title = 'Se déconnecter';
-      button.setAttribute('aria-label', 'Se déconnecter');
-      button.textContent = 'Se déconnecter';
-      button.hidden = true;
-      button.addEventListener('click', logout);
-      topActions.append(button);
+    if (topActions && !document.getElementById('dlmedSignOut')) topActions.append(createSignOutButton('dlmedSignOut'));
+
+    const welcomeLeading = document.getElementById('dlmedWelcomeAccountLeading');
+    if (welcomeLeading && !document.getElementById('dlmedWelcomeProfile')) {
+      welcomeLeading.append(createProfileControl('dlmedWelcome', 'dlmed-profile--welcome dlmed-profile--named'));
     }
+    const welcomeActions = document.getElementById('dlmedWelcomeAccountActions');
+    if (welcomeActions && !document.getElementById('dlmedWelcomeSignOut')) welcomeActions.append(createSignOutButton('dlmedWelcomeSignOut'));
   }
 
   function updateAccountControls() {
     const signedIn = state === 'active';
-    const profile = document.getElementById('dlmedProfile');
-    const profileTrigger = document.getElementById('dlmedProfileTrigger');
-    const profilePanel = document.getElementById('dlmedProfilePanel');
-    const profileUsername = document.getElementById('dlmedProfileUsername');
-    const profileEmail = document.getElementById('dlmedProfileEmail');
-    const profileInitial = document.getElementById('dlmedProfileInitial');
-    const profileTriggerName = document.getElementById('dlmedProfileTriggerName');
-    const topButton = document.getElementById('dlmedSignOut');
-    if (profile) profile.hidden = !signedIn;
-    if (profileUsername) profileUsername.textContent = activeUsername || '';
-    if (profileEmail) profileEmail.textContent = activeUser?.email || 'E-mail indisponible';
-    if (profileInitial) profileInitial.textContent = activeUsername.trim().charAt(0).toLocaleUpperCase('fr') || 'U';
-    if (profileTriggerName) profileTriggerName.textContent = activeUsername ? `@${activeUsername}` : '';
-    if (!signedIn && profilePanel) {
-      profilePanel.hidden = true;
-      profileTrigger?.setAttribute('aria-expanded', 'false');
+    for (const prefix of ['dlmed', 'dlmedWelcome']) {
+      const profile = document.getElementById(`${prefix}Profile`);
+      const profileTrigger = document.getElementById(`${prefix}ProfileTrigger`);
+      const profilePanel = document.getElementById(`${prefix}ProfilePanel`);
+      const profileUsername = document.getElementById(`${prefix}ProfileUsername`);
+      const profileEmail = document.getElementById(`${prefix}ProfileEmail`);
+      const profileInitial = document.getElementById(`${prefix}ProfileInitial`);
+      const profileTriggerName = document.getElementById(`${prefix}ProfileTriggerName`);
+      if (profile) profile.hidden = !signedIn;
+      if (profileUsername) profileUsername.textContent = activeUsername || '';
+      if (profileEmail) profileEmail.textContent = activeUser?.email || 'E-mail indisponible';
+      if (profileInitial) profileInitial.textContent = activeUsername.trim().charAt(0).toLocaleUpperCase('fr') || 'U';
+      if (profileTriggerName) profileTriggerName.textContent = activeUsername ? `@${activeUsername}` : '';
+      if (!signedIn && profilePanel) {
+        profilePanel.hidden = true;
+        profileTrigger?.setAttribute('aria-expanded', 'false');
+      }
     }
-    if (topButton) topButton.hidden = !signedIn;
+    for (const id of ['dlmedSignOut', 'dlmedWelcomeSignOut']) {
+      const button = document.getElementById(id);
+      if (button) button.hidden = !signedIn;
+    }
   }
 
   function setStatus(next) {
