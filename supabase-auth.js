@@ -593,7 +593,6 @@
         });
       }, true);
     }
-    if (pageIsQuiz && state !== 'active' && state !== 'username_required') requestLogin({ mandatory: true });
   }
 
   window.DLMED_AUTH = Object.freeze({
