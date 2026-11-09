@@ -7,6 +7,8 @@
   const main = $('#examMain');
   const loading = $('#quizLoading');
   const timer = $('#examTimer');
+  const attemptId = new URLSearchParams(window.location.search).get('attempt') || '';
+  const attemptStorageKey = /^[\w-]{1,100}$/.test(attemptId) ? `dlmed-exam-attempt:${attemptId}` : '';
   let questions = [];
   let choices = new Map();
   let index = 0;
@@ -31,6 +33,88 @@
   function updateTimer() {
     const seconds = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : elapsedSeconds;
     timer.textContent = `⏱ ${formatTime(seconds)}`;
+  }
+
+  function saveAttemptState(phase = 'in-progress') {
+    if (!attemptStorageKey) return;
+    try {
+      sessionStorage.setItem(attemptStorageKey, JSON.stringify({
+        phase,
+        questions: questions.map(question => ({
+          id: question.id,
+          lessonId: question.lessonId,
+          module: question.module,
+          text: question.text,
+          options: Array.isArray(question.options) ? question.options : [],
+          multiple: question.multiple === true,
+          optionMap: Array.isArray(question.optionMap) ? question.optionMap : LETTERS
+        })),
+        choices: [...choices.entries()],
+        index,
+        startedAt,
+        elapsedSeconds,
+        results: results.map(result => ({
+          questionId: result.question.id,
+          selectedIndexes: result.selectedIndexes,
+          correctIndexes: result.correctIndexes,
+          explanation: result.explanation,
+          correct: result.correct
+        }))
+      }));
+    } catch (_) {}
+  }
+
+  function readAttemptState(pool, count) {
+    if (!attemptStorageKey) return null;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(attemptStorageKey) || 'null');
+      if (!saved || !Array.isArray(saved.questions) || saved.questions.length !== count) return null;
+      const poolById = new Map(pool.map(question => [String(question.id), question]));
+      const restoredQuestions = saved.questions.map(snapshot => {
+        const current = poolById.get(String(snapshot.id));
+        if (!current || typeof snapshot.text !== 'string' || !Array.isArray(snapshot.options)) return null;
+        return {
+          ...current,
+          text: snapshot.text,
+          module: typeof snapshot.module === 'string' ? snapshot.module : current.module,
+          options: snapshot.options.map(String),
+          multiple: snapshot.multiple === true,
+          optionMap: Array.isArray(snapshot.optionMap) ? snapshot.optionMap.map(String) : LETTERS
+        };
+      });
+      if (restoredQuestions.some(question => !question)) return null;
+      const questionById = new Map(restoredQuestions.map(question => [String(question.id), question]));
+      const restoredChoices = new Map((Array.isArray(saved.choices) ? saved.choices : [])
+        .filter(entry => Array.isArray(entry) && questionById.has(String(entry[0])) && Array.isArray(entry[1]))
+        .map(([id, indexes]) => {
+          const question = questionById.get(String(id));
+          return [id, indexes.filter(value => Number.isInteger(value) && value >= 0 && value < question.options.length)];
+        }));
+      const restoredResults = Array.isArray(saved.results) ? saved.results.map(result => {
+        const question = questionById.get(String(result.questionId));
+        if (!question) return null;
+        return {
+          question,
+          selectedIndexes: Array.isArray(result.selectedIndexes) ? result.selectedIndexes : [],
+          correctIndexes: Array.isArray(result.correctIndexes) ? result.correctIndexes : [],
+          explanation: typeof result.explanation === 'string' ? result.explanation : '',
+          correct: result.correct === true
+        };
+      }) : [];
+      if (restoredResults.some(result => !result)) return null;
+      if (saved.phase === 'results' && restoredResults.length !== count) return null;
+      return {
+        phase: ['in-progress', 'grading', 'results'].includes(saved.phase) ? saved.phase : 'in-progress',
+        questions: restoredQuestions,
+        choices: restoredChoices,
+        index: Math.min(Math.max(Number(saved.index) || 0, 0), count - 1),
+        startedAt: Number.isFinite(Number(saved.startedAt)) ? Number(saved.startedAt) : 0,
+        elapsedSeconds: Math.max(0, Number(saved.elapsedSeconds) || 0),
+        results: restoredResults
+      };
+    } catch (_) {
+      return null;
+    }
   }
 
   function setPageMessage(title, copy, buttonLabel = 'Retour à l’accueil') {
@@ -72,19 +156,35 @@
         const acceptedIds = new Set(chosenLessons.map(lesson => String(lesson.id)));
         const pool = bank.questions.filter(question => acceptedIds.has(String(question.lessonId)));
         if (pool.length < selection.count) throw new Error(`Les modules sélectionnés contiennent ${pool.length} QCM. Choisis moins de questions ou ajoute d’autres modules.`);
-        questions = shuffle(pool).slice(0, selection.count);
-        choices = new Map();
-        index = 0;
-        results = [];
-        startedAt = Date.now();
-        elapsedSeconds = 0;
+        const savedAttempt = readAttemptState(pool, selection.count);
+        if (savedAttempt) {
+          questions = savedAttempt.questions;
+          choices = savedAttempt.choices;
+          index = savedAttempt.index;
+          results = savedAttempt.results;
+          elapsedSeconds = savedAttempt.elapsedSeconds;
+          startedAt = ['results', 'grading'].includes(savedAttempt.phase) ? 0 : (savedAttempt.startedAt || Date.now());
+        } else {
+          questions = shuffle(pool).slice(0, selection.count);
+          choices = new Map();
+          index = 0;
+          results = [];
+          startedAt = Date.now();
+          elapsedSeconds = 0;
+        }
         main.hidden = false;
         loading.hidden = true;
         $('#examHeadingTitle').textContent = `Examen blanc · ${questions.length} QCM`;
         $('#examHeadingCopy').textContent = `${chosenLessons.length} modules sélectionnés · aucune correction avant la fin.`;
         clock = window.setInterval(updateTimer, 1000);
         updateTimer();
-        renderQuestion();
+        if (savedAttempt?.phase === 'results' && savedAttempt.results.length === questions.length) {
+          renderResults();
+        } else {
+          renderQuestion();
+          if (savedAttempt?.phase === 'grading') void gradeExam();
+        }
+        if (!savedAttempt) saveAttemptState();
       } catch (error) {
         setPageMessage('Impossible de préparer cet examen', error?.message || 'Une erreur est survenue pendant le chargement des QCM.');
       }
@@ -133,6 +233,7 @@
     $('#examNavPrevious').addEventListener('click', () => { index = Math.max(0, navStart - 1); renderQuestion(); });
     $('#examNavNext').addEventListener('click', () => { index = Math.min(questions.length - 1, navStart + 10); renderQuestion(); });
     panel.querySelectorAll('[data-question-index]').forEach(button => button.addEventListener('click', () => { index = Number(button.dataset.questionIndex); renderQuestion(); }));
+    saveAttemptState();
   }
 
   async function confirmSubmission() {
@@ -147,6 +248,7 @@
     window.clearInterval(clock);
     clock = 0;
     updateTimer();
+    saveAttemptState('grading');
     await gradeExam();
   }
 
@@ -192,6 +294,7 @@
       if (failure) throw failure;
       if (!await window.DLMED_AUTH.ensureActiveSession()) throw new Error('Ta session n’est plus active. Reconnecte-toi avant de consulter le corrigé.');
       results = corrections;
+      saveAttemptState('results');
       renderResults();
     } catch (error) {
       if (!window.DLMED_AUTH?.isAuthorized()) return;
@@ -255,6 +358,9 @@
     questions = [];
     choices.clear();
     results = [];
+    if (attemptStorageKey) {
+      try { sessionStorage.removeItem(attemptStorageKey); } catch (_) {}
+    }
     timer.textContent = '⏱ 00:00';
     panel.replaceChildren();
     main.hidden = true;
@@ -274,7 +380,4 @@
   }));
   document.querySelectorAll('[data-theme-value]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeValue === (document.documentElement.dataset.theme || 'day'))));
 
-  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
 })();

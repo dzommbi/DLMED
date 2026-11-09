@@ -90,6 +90,9 @@
     const destination = new URL('./exam.html', window.location.href);
     destination.searchParams.set('lessons', chosen.map(item => item.lessonId).join(','));
     destination.searchParams.set('count', String(selectedExamCount));
+    const attemptId = window.crypto?.randomUUID?.()
+      || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    destination.searchParams.set('attempt', attemptId);
     window.location.assign(destination.href);
   });
 
