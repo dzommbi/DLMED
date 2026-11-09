@@ -5,7 +5,10 @@
   if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
 
   const workerUrl = new URL('./sw.js', document.currentScript?.src || location.href);
+  const releaseUrl = new URL('./dlmed-version.json', workerUrl);
   let knownVersion = null;
+  let knownReleaseVersion = null;
+  let pendingSafeReloadVersion = null;
   const startingController = navigator.serviceWorker.controller;
 
   function readVersion(worker) {
@@ -35,6 +38,78 @@
     ? readVersion(startingController).then(version => { knownVersion = version; })
     : Promise.resolve();
 
+  function isOAuthCallback() {
+    const query = new URLSearchParams(location.search);
+    return query.has('code') || query.has('error')
+      || /(?:^|[&#])(access_token|refresh_token|error|code)=/i.test(location.hash);
+  }
+
+  function reloadOnceForVersion(version) {
+    if (isQuizSectionActive()) {
+      deferReloadUntilQuizIsSafe(version);
+      return;
+    }
+    const reloadKey = 'dlmed-pwa-reloaded-version';
+    try {
+      if (sessionStorage.getItem(reloadKey) === version) return;
+      sessionStorage.setItem(reloadKey, version);
+    } catch (_) {
+      // Comparing the active worker version still prevents an update loop.
+    }
+    location.reload();
+  }
+
+  function isQuizSectionActive() {
+    if (!/(?:^|\/)quiz\.html$/i.test(location.pathname)) return false;
+    const pauseButton = document.getElementById('pauseTimerBtn');
+    const resultOverlay = document.getElementById('sectionOverlay');
+    return Boolean((pauseButton && !pauseButton.disabled) || resultOverlay?.classList.contains('show'));
+  }
+
+  function deferReloadUntilQuizIsSafe(version) {
+    pendingSafeReloadVersion = version;
+    const check = () => {
+      if (pendingSafeReloadVersion !== version) return;
+      if (isQuizSectionActive()) {
+        window.setTimeout(check, 1000);
+        return;
+      }
+      pendingSafeReloadVersion = null;
+      reloadOnceForVersion(version);
+    };
+    window.setTimeout(check, 1000);
+  }
+
+  function reloadAfterOAuthCallback(version) {
+    const authReady = window.DLMED_AUTH?.authReady;
+    if (!authReady || typeof authReady.then !== 'function') return;
+    Promise.resolve(authReady).catch(() => {}).then(() => {
+      let attempts = 0;
+      const waitForCallback = () => {
+        if (!isOAuthCallback()) {
+          reloadOnceForVersion(version);
+        } else if (++attempts < 60) {
+          window.setTimeout(waitForCallback, 500);
+        }
+      };
+      waitForCallback();
+    });
+  }
+
+  async function readReleaseVersion() {
+    const url = new URL(releaseUrl.href);
+    url.searchParams.set('_check', `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    const response = await fetch(url.href, {
+      method: 'GET',
+      cache: 'no-store',
+      credentials: 'omit',
+      headers: { Accept: 'application/json' }
+    });
+    if (!response.ok) return null;
+    const release = await response.json();
+    return typeof release.version === 'string' ? release.version : null;
+  }
+
   navigator.serviceWorker.addEventListener('message', event => {
     if (event.data?.type === 'DLMED_UPDATE_ACTIVATED') {
       event.ports?.[0]?.postMessage({ handled: true });
@@ -51,15 +126,11 @@
     knownVersion = nextVersion;
     if (previousVersion === nextVersion) return;
     if (!previousVersion && !startingController) return;
-
-    const reloadKey = 'dlmed-pwa-reloaded-version';
-    try {
-      if (sessionStorage.getItem(reloadKey) === nextVersion) return;
-      sessionStorage.setItem(reloadKey, nextVersion);
-    } catch (_) {
-      // The version comparison still prevents repeat reloads when storage is unavailable.
+    if (isOAuthCallback()) {
+      reloadAfterOAuthCallback(nextVersion);
+      return;
     }
-    location.reload();
+    reloadOnceForVersion(nextVersion);
   });
 
   let registration = null;
@@ -67,6 +138,19 @@
 
   async function checkForUpdate() {
     if (!registration || document.visibilityState !== 'visible' || !navigator.onLine) return;
+    try {
+      const releaseVersion = await readReleaseVersion();
+      if (releaseVersion && releaseVersion !== knownReleaseVersion) {
+        knownReleaseVersion = releaseVersion;
+        const activeVersion = await readVersion(navigator.serviceWorker.controller);
+        if (activeVersion && activeVersion !== releaseVersion) {
+          try { await registration.update(); } catch (_) {}
+          return;
+        }
+      }
+    } catch (_) {
+      // The worker update check still runs if the release marker is unavailable.
+    }
     try { await registration.update(); } catch (_) {}
   }
 
