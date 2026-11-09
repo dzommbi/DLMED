@@ -1,17 +1,19 @@
-DLMed — correctif pour refaire un examen
+DLMed — correctif de mise à jour automatique (v114)
 
-Contenu :
-- exam-launcher.js
-- exam.html
-- exam.js
+Remplacez ces cinq fichiers à la racine du dépôt GitHub :
+- sw.js
+- pwa-update.js
 - index.html
 - quiz.html
-- sw.js
+- exam.html
 
-Installation manuelle :
-1. Ouvrez le dépôt GitHub DLMed sur la branche main.
-2. Remplacez chaque fichier portant le même nom à la racine du site par celui de cette archive.
-3. Enregistrez les changements avec un commit, puis attendez la fin de GitHub Pages Deployment.
-4. Après publication, la version du Service Worker passe à v113.
+Puis validez les changements sur main et attendez le déploiement GitHub Pages.
 
-Le retour depuis le résultat ouvre directement le sélecteur de modules avec les modules du dernier examen présélectionnés. Un bouton « Préparer un nouvel examen » est aussi ajouté à la page de correction.
+Le nouveau Service Worker :
+- passe en cache v114 ;
+- réessaie trois fois les fichiers essentiels avant d’abandonner une installation ;
+- ne bloque plus son activation si une icône ou une page légale optionnelle échoue ;
+- récupère les pages et scripts depuis le réseau en contournant le cache HTTP ;
+- supprime uniquement les anciens caches portant le préfixe DLMed.
+
+Aucun cookie, session Google, donnée Supabase ou réponse de QCM n’est supprimé par ce correctif.

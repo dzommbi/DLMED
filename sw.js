@@ -1,10 +1,10 @@
 const CACHE_PREFIX = 'dlmed-shell-';
 // Bump this on each site release so open clients can detect the new worker.
-const APP_VERSION = 'v113';
+const APP_VERSION = 'v114';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_FILES = [
   './', './index.html', './quiz.html', './exam.html',
-  './exam.js', './exam-launcher.js', './pwa-update.js?v=113',
+  './exam.js', './exam-launcher.js', './pwa-update.js?v=114',
   './privacy/', './privacy/index.html', './terms/', './terms/index.html',
   './manifest.json', './manifest.webmanifest', './favicon.ico', './favicon.png',
   './apple-touch-icon.png', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png',
@@ -12,6 +12,15 @@ const APP_FILES = [
   './supabase-runtime.js'
 ];
 const SUPABASE_ORIGIN = 'https://alfziyssfhiabqgmzlsb.supabase.co';
+const REQUIRED_APP_PATHS = new Set([
+  '', 'index.html', 'quiz.html', 'exam.html', 'exam.js', 'exam-launcher.js',
+  'pwa-update.js', 'supabase-config.js', 'supabase-auth.js', 'supabase-data.js',
+  'supabase-runtime.js'
+]);
+
+function isRequiredAppFile(path) {
+  return REQUIRED_APP_PATHS.has(path.split(/[?#]/, 1)[0].replace(/^\.\//, '').replace(/\/$/, ''));
+}
 
 function cacheKeyFor(url, includeQuery = true) {
   const normalized = new URL(url);
@@ -23,12 +32,28 @@ function cacheKeyFor(url, includeQuery = true) {
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await Promise.all(APP_FILES.map(async path => {
-      const url = new URL(path, self.registration.scope);
-      const response = await fetch(new Request(url.href, { cache: 'reload' }));
-      if (!response.ok) throw new Error(`Could not precache ${url.pathname}: ${response.status}`);
-      await cache.put(url.href, response);
-    }));
+    try {
+      await Promise.all(APP_FILES.map(async path => {
+        const url = new URL(path, self.registration.scope);
+        let lastError = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const response = await fetch(new Request(url.href, { cache: 'no-store' }));
+            if (!response.ok) throw new Error(`Could not precache ${url.pathname}: ${response.status}`);
+            await cache.put(url.href, response);
+            return;
+          } catch (error) {
+            lastError = error;
+            if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+          }
+        }
+        if (isRequiredAppFile(path)) throw lastError;
+        // Optional icons and legal pages must not block the new worker from activating.
+      }));
+    } catch (error) {
+      await caches.delete(CACHE_NAME);
+      throw error;
+    }
     await self.skipWaiting();
   })());
 });
@@ -92,7 +117,7 @@ async function refreshLegacyClients() {
 async function networkFirst(request, cacheKey, offlineFallback = null) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const fresh = await fetch(new Request(request, { cache: 'no-cache' }));
+    const fresh = await fetch(new Request(request, { cache: 'no-store' }));
     if (fresh.ok || fresh.type === 'opaque') await cache.put(cacheKey, fresh.clone());
     return fresh;
   } catch (error) {
