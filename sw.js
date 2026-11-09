@@ -1,15 +1,15 @@
 const CACHE_PREFIX = 'dlmed-shell-';
 // Bump this on each site release so open clients can detect the new worker.
-const APP_VERSION = 'v111';
+const APP_VERSION = 'v113';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_FILES = [
   './', './index.html', './quiz.html', './exam.html',
-  './exam.js', './exam-launcher.js', './pwa-update.js?v=111',
+  './exam.js', './exam-launcher.js', './pwa-update.js?v=113',
   './privacy/', './privacy/index.html', './terms/', './terms/index.html',
   './manifest.json', './manifest.webmanifest', './favicon.ico', './favicon.png',
   './apple-touch-icon.png', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png',
   './supabase-config.js', './supabase-auth.js', './supabase-data.js',
-  './supabase-runtime.js', './supabase-presence.js'
+  './supabase-runtime.js'
 ];
 const SUPABASE_ORIGIN = 'https://alfziyssfhiabqgmzlsb.supabase.co';
 

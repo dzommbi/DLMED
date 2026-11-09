@@ -18,6 +18,7 @@
   let results = [];
   let initPromise = null;
   let grading = false;
+  let homeExamReturnUrl = './';
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -120,7 +121,15 @@
   function setPageMessage(title, copy, buttonLabel = 'Retour à l’accueil') {
     loading.hidden = true;
     main.hidden = false;
-    panel.innerHTML = `<div class="exam-message"><span class="exam-pill">DLMED · Mode examen</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(copy)}</p><a class="btn primary" href="./index.html">${escapeHtml(buttonLabel)}</a></div>`;
+    panel.innerHTML = `<div class="exam-message"><span class="exam-pill">DLMED · Mode examen</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(copy)}</p><a class="btn primary" href="./">${escapeHtml(buttonLabel)}</a></div>`;
+  }
+
+  function prepareHomeExamLink(lessonIds) {
+    const destination = new URL('./', window.location.href);
+    destination.searchParams.set('mode', 'exam');
+    destination.searchParams.set('lessons', [...lessonIds].join(','));
+    homeExamReturnUrl = `${destination.pathname}${destination.search}`;
+    document.querySelectorAll('[data-exam-home-link]').forEach(link => { link.href = homeExamReturnUrl; });
   }
 
   function shuffle(items) {
@@ -149,6 +158,7 @@
       try {
         if (!await window.DLMED_AUTH.ensureActiveSession()) return;
         const selection = readSelection();
+        prepareHomeExamLink(selection.lessonIds);
         const bank = await window.DLMED_DATA.load();
         if (!window.DLMED_AUTH.isAuthorized()) return;
         const chosenLessons = bank.lessons.filter(lesson => selection.lessonIds.has(String(lesson.id)));
@@ -323,6 +333,7 @@
     panel.innerHTML = `
       <section class="result-hero"><div><span class="exam-pill">Copie corrigée</span><h1>Examen terminé</h1><p>Tu as obtenu ${percent}% de bonnes réponses. Ouvre chaque question pour revoir les choix et l’explication.</p></div><div class="result-score"><strong>${score}/20</strong><span>NOTE FINALE</span></div></section>
       <div class="result-stats"><span class="result-stat"><strong>${correctCount}</strong> correctes</span><span class="result-stat"><strong>${wrongCount}</strong> à revoir</span><span class="result-stat"><strong>${questions.length}</strong> QCM</span><span class="result-stat"><strong>${formatTime(elapsedSeconds)}</strong> temps</span></div>
+      <div class="result-start-actions"><a class="btn primary" data-exam-home-link href="${escapeHtml(homeExamReturnUrl)}">↻ Préparer un nouvel examen</a></div>
       <div class="review-heading"><h2>Corrigé détaillé</h2><span class="quiet">Clique une question pour la revoir</span></div>
       <div class="result-retry-error" id="examReviewError" hidden>Impossible de vérifier à nouveau la session. Reconnecte-toi pour ouvrir les explications.</div>
       <div class="review-list">${results.map((result, resultIndex) => {
@@ -336,6 +347,9 @@
           return `<div class="review-option ${stateClass}"><span class="exam-letter">${LETTERS[optionIndex]}</span><span>${escapeHtml(option)}${marker ? `<strong> · ${marker}</strong>` : ''}</span></div>`;
         }).join('')}</div><div class="review-explanation"><strong>Explication</strong><br>${escapeHtml(result.explanation || 'Aucune explication enregistrée pour cette question.')}</div><div class="review-footer-actions"><button class="btn ask-exam-gpt" type="button">✨ Comprendre avec ChatGPT</button></div></div></article>`;
       }).join('')}</div>`;
+    const homeLink = $('#examHomeLink');
+    if (homeLink) homeLink.textContent = '← Nouvel examen';
+    panel.querySelectorAll('[data-exam-home-link]').forEach(link => { link.href = homeExamReturnUrl; });
     panel.querySelectorAll('.review-toggle').forEach(button => button.addEventListener('click', () => {
       const article = button.closest('.review-item');
       const detail = article.querySelector('.review-detail');
