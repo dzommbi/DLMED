@@ -1,10 +1,10 @@
 const CACHE_PREFIX = 'dlmed-shell-';
 // Bump this on each site release so open clients can detect the new worker.
-const APP_VERSION = 'v114';
+const APP_VERSION = 'v115';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_FILES = [
   './', './index.html', './quiz.html', './exam.html',
-  './exam.js', './exam-launcher.js', './pwa-update.js?v=114',
+  './exam.js', './exam-launcher.js', './pwa-update.js?v=115',
   './privacy/', './privacy/index.html', './terms/', './terms/index.html',
   './manifest.json', './manifest.webmanifest', './favicon.ico', './favicon.png',
   './apple-touch-icon.png', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png',

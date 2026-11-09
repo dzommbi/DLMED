@@ -1,19 +1,13 @@
-DLMed — correctif de mise à jour automatique (v114)
+DLMed — questions sans réponse en mode Examen (v115)
 
-Remplacez ces cinq fichiers à la racine du dépôt GitHub :
+Remplacez les fichiers suivants à la racine du dépôt GitHub :
+- exam.js
+- exam.html
 - sw.js
-- pwa-update.js
 - index.html
 - quiz.html
-- exam.html
+- pwa-update.js
 
-Puis validez les changements sur main et attendez le déploiement GitHub Pages.
+Sur la dernière question, la remise de copie est bloquée s'il reste des réponses vides. Le site affiche en français le nombre de questions manquantes, revient à la première question sans réponse et met ces numéros en évidence. Après réponse, une nouvelle tentative de remise conduit à la prochaine question vide. Quand elles sont toutes répondues, la correction suit le parcours normal.
 
-Le nouveau Service Worker :
-- passe en cache v114 ;
-- réessaie trois fois les fichiers essentiels avant d’abandonner une installation ;
-- ne bloque plus son activation si une icône ou une page légale optionnelle échoue ;
-- récupère les pages et scripts depuis le réseau en contournant le cache HTTP ;
-- supprime uniquement les anciens caches portant le préfixe DLMed.
-
-Aucun cookie, session Google, donnée Supabase ou réponse de QCM n’est supprimé par ce correctif.
+Le Service Worker passe en version v115 afin que les anciens appareils installent ces fichiers. Enregistrez les changements sur la branche main, puis attendez le déploiement GitHub Pages.

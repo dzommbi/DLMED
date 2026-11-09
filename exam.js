@@ -19,6 +19,7 @@
   let initPromise = null;
   let grading = false;
   let homeExamReturnUrl = './';
+  let unansweredNotice = '';
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -208,6 +209,10 @@
     return Math.min(Math.max(0, index - 4), maxStart);
   }
 
+  function hasAnswer(questionId) {
+    return (choices.get(questionId) || []).length > 0;
+  }
+
   function renderQuestion() {
     const question = questions[index];
     if (!question) return;
@@ -218,10 +223,11 @@
     panel.innerHTML = `
       <div class="exam-question-head"><span class="exam-module-tag" title="${escapeHtml(question.module)}">${escapeHtml(question.module)}</span><span class="exam-count">Question ${index + 1} / ${questions.length}</span></div>
       <div class="exam-progress" role="progressbar" aria-label="Progression de l’examen" aria-valuemin="0" aria-valuemax="${questions.length}" aria-valuenow="${index + 1}"><span style="width:${percent}%"></span></div>
+      ${unansweredNotice ? `<div class="exam-unanswered-notice" role="alert">${unansweredNotice}</div>` : ''}
       <h2 class="exam-question">${escapeHtml(question.text)}</h2>
       <div class="exam-answer-list" role="group" aria-label="${question.multiple ? 'Choisis une ou plusieurs réponses' : 'Choisis une réponse'}">${question.options.map((option, optionIndex) => `<button class="exam-answer${picked.includes(optionIndex) ? ' selected' : ''}" type="button" data-option="${optionIndex}" aria-pressed="${picked.includes(optionIndex)}"><span class="exam-letter">${LETTERS[optionIndex]}</span><span>${escapeHtml(option)}</span></button>`).join('')}</div>
       <div class="exam-actions"><span class="exam-selection-hint">${question.multiple ? 'Plusieurs réponses possibles.' : 'Une seule réponse.'} Les réponses restent masquées jusqu’à la fin.</span><div class="exam-actions-right"><button class="btn" id="examPrevious" type="button" ${index === 0 ? 'disabled' : ''}>← Précédent</button><button class="btn primary" id="examNext" type="button">${last ? 'Remettre ma copie ✓' : 'Suivante →'}</button></div></div>
-      <nav class="exam-navigation" aria-label="Navigation des questions"><button class="exam-nav-arrow" id="examNavPrevious" type="button" aria-label="Questions précédentes" ${navStart === 0 ? 'disabled' : ''}>‹</button><div class="exam-nav-strip">${questions.slice(navStart, navStart + 10).map((item, offset) => { const questionIndex = navStart + offset; return `<button class="exam-nav-number${choices.has(item.id) ? ' answered' : ''}${questionIndex === index ? ' current' : ''}" type="button" data-question-index="${questionIndex}" aria-label="Question ${questionIndex + 1}${choices.has(item.id) ? ', répondue' : ', sans réponse'}" aria-current="${questionIndex === index ? 'step' : 'false'}">${questionIndex + 1}</button>`; }).join('')}</div><button class="exam-nav-arrow" id="examNavNext" type="button" aria-label="Questions suivantes" ${navStart + 10 >= questions.length ? 'disabled' : ''}>›</button></nav>`;
+      <nav class="exam-navigation" aria-label="Navigation des questions"><button class="exam-nav-arrow" id="examNavPrevious" type="button" aria-label="Questions précédentes" ${navStart === 0 ? 'disabled' : ''}>‹</button><div class="exam-nav-strip">${questions.slice(navStart, navStart + 10).map((item, offset) => { const questionIndex = navStart + offset; const answered = hasAnswer(item.id); return `<button class="exam-nav-number${answered ? ' answered' : ' unanswered'}${questionIndex === index ? ' current' : ''}" type="button" data-question-index="${questionIndex}" aria-label="Question ${questionIndex + 1}${answered ? ', répondue' : ', sans réponse'}" aria-current="${questionIndex === index ? 'step' : 'false'}">${questionIndex + 1}</button>`; }).join('')}</div><button class="exam-nav-arrow" id="examNavNext" type="button" aria-label="Questions suivantes" ${navStart + 10 >= questions.length ? 'disabled' : ''}>›</button></nav>`;
 
     panel.querySelectorAll('[data-option]').forEach(button => {
       button.addEventListener('click', () => {
@@ -232,26 +238,35 @@
           : [optionIndex];
         if (updated.length) choices.set(question.id, updated);
         else choices.delete(question.id);
+        unansweredNotice = '';
         renderQuestion();
       });
     });
-    $('#examPrevious').addEventListener('click', () => { if (index > 0) { index--; renderQuestion(); } });
+    $('#examPrevious').addEventListener('click', () => { if (index > 0) { unansweredNotice = ''; index--; renderQuestion(); } });
     $('#examNext').addEventListener('click', () => {
       if (last) void confirmSubmission();
-      else { index++; renderQuestion(); }
+      else { unansweredNotice = ''; index++; renderQuestion(); }
     });
-    $('#examNavPrevious').addEventListener('click', () => { index = Math.max(0, navStart - 1); renderQuestion(); });
-    $('#examNavNext').addEventListener('click', () => { index = Math.min(questions.length - 1, navStart + 10); renderQuestion(); });
-    panel.querySelectorAll('[data-question-index]').forEach(button => button.addEventListener('click', () => { index = Number(button.dataset.questionIndex); renderQuestion(); }));
+    $('#examNavPrevious').addEventListener('click', () => { unansweredNotice = ''; index = Math.max(0, navStart - 1); renderQuestion(); });
+    $('#examNavNext').addEventListener('click', () => { unansweredNotice = ''; index = Math.min(questions.length - 1, navStart + 10); renderQuestion(); });
+    panel.querySelectorAll('[data-question-index]').forEach(button => button.addEventListener('click', () => { unansweredNotice = ''; index = Number(button.dataset.questionIndex); renderQuestion(); }));
     saveAttemptState();
   }
 
   async function confirmSubmission() {
-    const unanswered = questions.length - choices.size;
-    const message = unanswered
-      ? `Il reste ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse. Les questions vides compteront comme incorrectes. Remettre la copie ?`
-      : 'Remettre la copie et afficher la note ainsi que le corrigé ?';
-    if (!window.confirm(message)) return;
+    const unansweredIndexes = questions.reduce((missing, question, questionIndex) => {
+      if (!hasAnswer(question.id)) missing.push(questionIndex);
+      return missing;
+    }, []);
+    if (unansweredIndexes.length) {
+      unansweredNotice = `Il reste ${unansweredIndexes.length} question${unansweredIndexes.length > 1 ? 's' : ''} sans réponse. Complète-les avant de remettre ta copie.`;
+      index = unansweredIndexes[0];
+      renderQuestion();
+      panel.querySelector('.exam-unanswered-notice')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    unansweredNotice = '';
+    if (!window.confirm('Remettre la copie et afficher la note ainsi que le corrigé ?')) return;
     if (!window.DLMED_AUTH?.isAuthorized() || !await window.DLMED_AUTH.ensureActiveSession()) return;
     elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
     startedAt = 0;

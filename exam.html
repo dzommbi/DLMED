@@ -25,6 +25,12 @@
     @media(max-width:700px){.topbar{height:64px;padding:0 14px;gap:8px}.brand{gap:8px;font-size:16px}.brand-icon{width:32px;height:32px}.top-actions{gap:6px}.theme-toggle{padding:3px}.theme-choice{width:28px;height:28px}.timer-pill{min-width:78px;padding:8px 9px;font-size:11px}.exam-main{margin:22px auto;padding:0 14px 38px}.exam-heading{align-items:flex-start;flex-direction:column}.exam-card{padding:18px 14px;border-radius:16px}.exam-actions{align-items:stretch;flex-direction:column}.exam-actions-right{display:grid;grid-template-columns:1fr 1fr}.exam-actions-right .btn{width:100%}.exam-navigation{gap:4px}.exam-nav-strip{gap:3px}.exam-nav-number{min-width:28px;height:31px}.exam-nav-arrow{width:30px;height:31px}.result-hero{grid-template-columns:1fr;justify-items:start}.result-score{display:flex;align-items:center;gap:10px;min-width:0;padding:9px 13px}.result-score strong{font-size:26px}.review-toggle{grid-template-columns:28px minmax(0,1fr) 17px;gap:8px;padding:11px}.review-result-label{display:none}.review-detail{padding:0 11px 13px}.review-toggle-copy strong{font-size:11px}}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>
+  <style id="exam-unanswered-styles">
+    .exam-unanswered-notice{margin:0 0 16px;padding:11px 13px;border:1px solid #efcf91;border-radius:11px;background:#fff7e8;color:#8d5c14;font-size:12px;font-weight:700;line-height:1.5}
+    .exam-nav-number.unanswered:not(.current){background:#fff2dc;color:#a56a17}
+    :root[data-theme="night"] .exam-unanswered-notice{border-color:#795d2e;background:#3b3121;color:#f1cc80}
+    :root[data-theme="night"] .exam-nav-number.unanswered:not(.current){background:#3b3121;color:#f1cc80}
+  </style>
 </head>
 <body data-page="quiz">
   <div class="exam-loading" id="quizLoading" role="status"><span>Vérification de ta session…</span></div>
@@ -47,6 +53,6 @@
   <script src="./supabase-auth.js"></script>
   <script src="./supabase-data.js"></script>
   <script src="./exam.js"></script>
-  <script src="./pwa-update.js?v=114" defer></script>
+  <script src="./pwa-update.js?v=115" defer></script>
 </body>
 </html>
