@@ -4,9 +4,11 @@
   const launchButton = document.getElementById('startChosenExam');
   const errorNode = document.getElementById('examModuleError');
   const config = document.getElementById('examConfigModal');
+  const beginButton = document.getElementById('beginChosenExam');
   if (!launchButton || !errorNode || !config) return;
 
   let closeTimer = 0;
+  let selectedExamCount = null;
 
   function selectedLessons() {
     return window.DLMED_UI?.selectedLessons?.() || [];
@@ -45,7 +47,13 @@
       const count = Number(option.dataset.examCount);
       option.disabled = available < count;
       option.querySelector('small').textContent = available < count ? 'Pas assez de QCM' : 'Questionnaire aléatoire';
+      option.classList.remove('selected');
+      option.setAttribute('aria-pressed', 'false');
     });
+    selectedExamCount = null;
+    beginButton.hidden = true;
+    beginButton.disabled = true;
+    document.getElementById('examPoolSummary').textContent = `${chosen.length} modules · ${available} QCM disponibles`;
     clearTimeout(closeTimer);
     config.hidden = false;
     config.classList.add('open');
@@ -54,22 +62,35 @@
   });
 
   config.querySelectorAll('[data-exam-count]').forEach(option => {
-    option.addEventListener('click', async () => {
-      const chosen = selectedLessons();
+    option.addEventListener('click', () => {
       const count = Number(option.dataset.examCount);
-      const available = chosen.reduce((total, item) => total + (Number(item.count) || 0), 0);
-      if (chosen.length < 5) {
-        closeConfig();
-        showError('Pour commencer un examen, sélectionne au moins 5 modules.');
-        return;
-      }
-      if (available < count) return;
-      if (!window.DLMED_AUTH?.isAuthorized() || !await window.DLMED_AUTH.ensureActiveSession()) return;
-      const destination = new URL('./exam.html', window.location.href);
-      destination.searchParams.set('lessons', chosen.map(item => item.lessonId).join(','));
-      destination.searchParams.set('count', String(count));
-      window.location.assign(destination.href);
+      if (option.disabled) return;
+      selectedExamCount = count;
+      config.querySelectorAll('[data-exam-count]').forEach(choice => {
+        const selected = choice === option;
+        choice.classList.toggle('selected', selected);
+        choice.setAttribute('aria-pressed', String(selected));
+      });
+      beginButton.hidden = false;
+      beginButton.disabled = false;
+      document.getElementById('examPoolSummary').textContent = `${count} QCM sélectionnés · clique sur Commencer pour lancer l’examen.`;
     });
+  });
+
+  beginButton.addEventListener('click', async () => {
+    const chosen = selectedLessons();
+    if (chosen.length < 5) {
+      closeConfig();
+      showError('Pour commencer un examen, sélectionne au moins 5 modules.');
+      return;
+    }
+    const available = chosen.reduce((total, item) => total + (Number(item.count) || 0), 0);
+    if (!selectedExamCount || available < selectedExamCount) return;
+    if (!window.DLMED_AUTH?.isAuthorized() || !await window.DLMED_AUTH.ensureActiveSession()) return;
+    const destination = new URL('./exam.html', window.location.href);
+    destination.searchParams.set('lessons', chosen.map(item => item.lessonId).join(','));
+    destination.searchParams.set('count', String(selectedExamCount));
+    window.location.assign(destination.href);
   });
 
   document.getElementById('closeExamConfig').addEventListener('click', closeConfig);

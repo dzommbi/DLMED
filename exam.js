@@ -52,7 +52,7 @@
     const params = new URLSearchParams(window.location.search);
     const lessonIds = [...new Set((params.get('lessons') || '').split(',').map(value => value.trim()).filter(value => /^\d+$/.test(value)))];
     const count = Number(params.get('count'));
-    if (lessonIds.length < 5 || ![40, 50, 60].includes(count)) throw new Error('Le lien de cet examen est incomplet. Retourne au menu, sélectionne au moins cinq modules puis choisis le nombre de QCM.');
+    if (lessonIds.length < 5 || ![40, 50, 60, 80, 100].includes(count)) throw new Error('Le lien de cet examen est incomplet. Retourne au menu, sélectionne au moins cinq modules puis choisis le nombre de QCM.');
     return { lessonIds: new Set(lessonIds), count };
   }
 
