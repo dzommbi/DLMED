@@ -126,6 +126,10 @@
     knownVersion = nextVersion;
     if (previousVersion === nextVersion) return;
     if (!previousVersion && !startingController) return;
+    if (window.DLMED_CACHE_CLEAN_RUNNING) {
+      window.DLMED_CACHE_CLEAN_PENDING_VERSION = nextVersion;
+      return;
+    }
     if (isOAuthCallback()) {
       reloadAfterOAuthCallback(nextVersion);
       return;
