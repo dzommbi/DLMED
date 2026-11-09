@@ -352,12 +352,6 @@ function updateSideNav() {
       retryButton.onclick = retryCatalogLoad;
     } else retryButton?.remove();
     $('#startChosenModules').disabled = !dataLoaded || loading || !selected.length;
-    const examButton = $('#startChosenExam');
-    if (examButton) {
-      const canOpen = dataLoaded && !loading && window.DLMED_AUTH?.isAuthorized();
-      examButton.disabled = !canOpen;
-      examButton.classList.toggle('is-ready', Boolean(canOpen && selected.length >= 5));
-    }
   }
 
   function catalogStatus() {
@@ -733,10 +727,7 @@ function updateSideNav() {
   window.returnToWelcome = returnToWelcome;
   window.persist = persistSupabaseProgress;
   window.list = updateSideNav;
-  window.DLMED_UI = Object.freeze({
-    initialize,
-    selectedLessons: () => selectedModules().map(part => ({ lessonId: String(part.lessonId), name: part.name, count: part.count }))
-  });
+  window.DLMED_UI = Object.freeze({ initialize });
 
   window.addEventListener('dlmed:auth-authorized', () => { if (!dataLoaded) void initialize(); });
   resetTimer(); bindNavigation(); renderModulePicker(); updateSideNav(); updateStats(); void initialize();
