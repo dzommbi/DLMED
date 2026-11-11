@@ -111,12 +111,20 @@
 
   async function grade(questionId, selectedLetters) {
     if (!client) throw new Error(window.DLMED_SUPABASE_ERROR || 'Client Supabase indisponible.');
-    await requireActiveSession();
+    // Fast path: one network round trip. grade_qcm_question already enforces the
+    // active single-device session server-side, and a heartbeat also runs every 12 s,
+    // so no separate heartbeat call is needed before grading.
+    if (!window.DLMED_AUTH?.isAuthorized?.()) throw new Error('Authentification requise.');
     const { data, error } = await client.rpc('grade_qcm_question', {
       p_question_id: Number(questionId),
       p_selected_options: selectedLetters
     });
-    if (error) throw error;
+    if (error) {
+      // Slow path, only on failure: run the full session check so a revoked session
+      // is signed out with the proper message instead of a generic error.
+      await requireActiveSession();
+      throw error;
+    }
     if (!data || typeof data.correct !== 'boolean' || !Array.isArray(data.correct_options)) {
       throw new Error('Réponse de correction invalide. Appliquez la migration de correction Supabase.');
     }

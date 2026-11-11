@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'dlmed-shell-';
 // Bump this on each site release so open clients can detect the new worker.
-const APP_VERSION = 'v118';
+const APP_VERSION = 'v119';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_FILES = [
   './', './index.html', './quiz.html', './exam.html',
