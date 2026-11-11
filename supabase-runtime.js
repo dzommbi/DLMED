@@ -6,7 +6,8 @@
     'Biochimie': { list: '.bio-lesson-list', check: 'bio-lesson-check', badge: 'data-bio-order' },
     'Physiopathologie': { list: '.physiopathologie-lesson-list', check: 'physio-lesson-check', badge: 'data-physio-order' },
     'Psychologie médicale': { list: '.psychologie-lesson-list', check: 'psychologie-lesson-check', badge: 'data-psych-order' },
-    'Radiologie': { list: '.radiologie-lesson-list', check: 'radiologie-lesson-check', badge: 'data-radio-order' }
+    'Radiologie': { list: '.radiologie-lesson-list', check: 'radiologie-lesson-check', badge: 'data-radio-order' },
+    'Immunologie': { list: '.immunologie-lesson-list', check: 'immunologie-lesson-check', badge: 'data-immuno-order' }
   };
   const MODULES = [];
   const CATALOG_LESSONS = [];
@@ -45,7 +46,7 @@
     pendingChoice = null; reviewQueue = []; reviewMode = false;
     loading = false; dataLoaded = false; loadError = ''; loadedFromCache = false;
     document.querySelector('#quiz')?.replaceChildren();
-    document.querySelectorAll('.module-list,.bio-lesson-list,.physiopathologie-lesson-list,.psychologie-lesson-list,.radiologie-lesson-list,#modulePickerList').forEach(node => node.replaceChildren());
+    document.querySelectorAll('.module-list,.bio-lesson-list,.physiopathologie-lesson-list,.psychologie-lesson-list,.radiologie-lesson-list,.immunologie-lesson-list,#modulePickerList').forEach(node => node.replaceChildren());
     if (document.body.dataset.page === 'quiz') {
       document.querySelector('#app')?.classList.remove('active');
       const welcome = document.querySelector('#welcomeScreen');
@@ -261,7 +262,7 @@ function updateSideNav() {
       if (!list) continue;
       const items = dataLoaded ? CATALOG_LESSONS.filter(part => part.group === name) : [];
       groupParts.set(name, items);
-      list.innerHTML = items.map(part => lessonMarkup(part, name)).join('') || `<p class="quiet">${escapeHtml(dataLoaded ? (name === 'Radiologie' ? 'Aucun QCM disponible pour le moment.' : 'Aucun cours enregistré.') : statusMessage)}</p>`;
+      list.innerHTML = items.map(part => lessonMarkup(part, name)).join('') || `<p class="quiet">${escapeHtml(dataLoaded ? (['Radiologie', 'Immunologie'].includes(name) ? 'Aucun QCM disponible pour le moment.' : 'Aucun cours enregistré.') : statusMessage)}</p>`;
     }
     document.querySelectorAll('.cardio-subject-row .biochimie-total,.psychologie-total,.semiology-qsm-total').forEach(badge => {
       badge.textContent = dataLoaded ? '0 QCM' : '—';
@@ -283,6 +284,10 @@ function updateSideNav() {
       if (!badge) { badge = document.createElement('span'); badge.className = 'biochimie-total radio-total'; radioRow.appendChild(badge); }
       badge.textContent = dataLoaded ? `${radioCount} QCM` : '—';
     }
+    const immunoSubject = subjects.find(subject => subjectGroup(subject.name) === 'Immunologie');
+    const immunoCount = dataLoaded && immunoSubject ? questions.filter(question => question.subjectId === Number(immunoSubject.id)).length : 0;
+    const immunoBadge = document.querySelector('.immuno-total');
+    if (immunoBadge) immunoBadge.textContent = dataLoaded ? `${immunoCount} QCM` : '—';
     document.querySelectorAll('.module-pick-check').forEach(input => { input.onchange = updateModulePicker; });
     const selectAll = (selector, inputsSelector) => {
       const control = $(selector);
@@ -292,6 +297,7 @@ function updateSideNav() {
     selectAll('#selectAllBioLessons', '.bio-lesson-check:not(:disabled)');
     selectAll('#selectAllPhysioLessons', '.physio-lesson-check:not(:disabled)');
     selectAll('#selectAllRadiologyLessons', '.radiologie-lesson-check:not(:disabled)');
+    selectAll('#selectAllImmunoLessons', '.immunologie-lesson-check:not(:disabled)');
     const psychList = document.querySelector('.psychologie-lesson-list');
     if (psychList && !document.querySelector('#selectAllPsychLessons')) {
       const all = document.createElement('label');
@@ -311,6 +317,11 @@ function updateSideNav() {
       radioToggle.dataset.bound = 'true';
       radioToggle.addEventListener('click', () => toggleAnimatedPanel(radioToggle, $('#radiologieLessons')));
     }
+    const immunoToggle = $('#immunologieToggle');
+    if (immunoToggle && !immunoToggle.dataset.bound) {
+      immunoToggle.dataset.bound = 'true';
+      immunoToggle.addEventListener('click', () => toggleAnimatedPanel(immunoToggle, $('#immunologieLessons')));
+    }
     updateModulePicker();
   }
 
@@ -322,13 +333,13 @@ function updateSideNav() {
   function updateModulePicker() {
     const selected = selectedModules();
     for (const part of MODULES) {
-      const badge = document.querySelector(`[data-order="${CSS.escape(part.key)}"], [data-bio-order="${CSS.escape(part.key)}"], [data-physio-order="${CSS.escape(part.key)}"], [data-psych-order="${CSS.escape(part.key)}"], [data-radio-order="${CSS.escape(part.key)}"]`);
+      const badge = document.querySelector(`[data-order="${CSS.escape(part.key)}"], [data-bio-order="${CSS.escape(part.key)}"], [data-physio-order="${CSS.escape(part.key)}"], [data-psych-order="${CSS.escape(part.key)}"], [data-radio-order="${CSS.escape(part.key)}"], [data-immuno-order="${CSS.escape(part.key)}"]`);
       if (badge) {
         const index = selected.findIndex(item => item.key === part.key);
         badge.textContent = index < 0 ? '—' : String(index + 1).padStart(2, '0');
       }
     }
-    for (const [selector, group] of [['#selectAllModules', 'Sémiologie'], ['#selectAllBioLessons', 'Biochimie'], ['#selectAllPhysioLessons', 'Physiopathologie'], ['#selectAllPsychLessons', 'Psychologie médicale'], ['#selectAllRadiologyLessons', 'Radiologie']]) {
+    for (const [selector, group] of [['#selectAllModules', 'Sémiologie'], ['#selectAllBioLessons', 'Biochimie'], ['#selectAllPhysioLessons', 'Physiopathologie'], ['#selectAllPsychLessons', 'Psychologie médicale'], ['#selectAllRadiologyLessons', 'Radiologie'], ['#selectAllImmunoLessons', 'Immunologie']]) {
       const control = $(selector);
       if (!control) continue;
       const eligible = MODULES.filter(part => part.group === group && part.count > 0);

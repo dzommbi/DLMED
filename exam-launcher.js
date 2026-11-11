@@ -57,7 +57,7 @@
       input.checked = true;
       for (let parent = input.parentElement; parent; parent = parent.parentElement) {
         if (parent.matches?.('details')) parent.open = true;
-        if (parent.matches?.('.biochimie-lessons, .physiopathologie-lessons, .psychologie-lessons, .radiologie-lessons')) {
+        if (parent.matches?.('.biochimie-lessons, .physiopathologie-lessons, .psychologie-lessons, .radiologie-lessons, .immunologie-lessons')) {
           parent.hidden = false;
           const toggle = document.querySelector(`[aria-controls="${parent.id}"]`);
           toggle?.setAttribute('aria-expanded', 'true');

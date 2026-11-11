@@ -551,6 +551,14 @@
 .radio-total{background:linear-gradient(145deg,#59cbd0,#347cc7);color:#fff}
 :root[data-theme="night"] .radio-total{background:linear-gradient(145deg,#59cbd0,#347cc7);color:#fff}
 @media(max-width:700px){.cardio-subject-row--radio{grid-template-columns:32px minmax(0,1fr) auto 12px;gap:7px;padding:8px 9px}}
+.cardio-subject-row--immuno .cardio-subject-icon{background:linear-gradient(145deg,#8b7cf0,#5b5bd6)}
+.cardio-subject-row--immuno:hover{background:linear-gradient(110deg,#f0eeff,#fafaff);border-color:#a79ff0;color:#5b4fd0;box-shadow:0 7px 17px #5b5bd620}
+:root[data-theme="night"] .cardio-subject-row--immuno:hover{background:linear-gradient(110deg,#262547,#1f2140);border-color:#6a64b8;color:#c9c4ff}
+.cardio-subject-row--immuno{width:100%;grid-template-columns:36px minmax(0,1fr) auto 16px;text-align:left}
+.immuno-total{background:linear-gradient(145deg,#8b7cf0,#5b5bd6);color:#fff}
+.immunologie-lesson-list .module-pick-count{background:rgba(91,91,214,.12);border:1px solid rgba(91,91,214,.26);color:#5b5bd6}
+:root[data-theme="night"] .immunologie-lesson-list .module-pick-count{background:rgba(139,124,240,.16);border-color:rgba(139,124,240,.30);color:#c9c4ff}
+@media(max-width:700px){.cardio-subject-row--immuno{grid-template-columns:32px minmax(0,1fr) auto 12px;gap:7px;padding:8px 9px}}
 </style><style id="professional-module-icons">
 .module-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .module-icon-radiology{background:#e7f8fc;color:#3282a3}
@@ -751,8 +759,16 @@
         </div>
       </details>
       <details class="module-group picker-folder modules-folder">
-        <summary class="module-group-summary picker-folder-summary"><span class="picker-folder-icon picker-folder-icon--modules" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v10h-17z"/><path d="M3.5 7.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v2"/></svg></span><span class="picker-folder-copy"><strong>Modules</strong><small>Espace libre à compléter</small></span><span class="picker-folder-badge picker-folder-badge--empty">Vide</span></summary>
-        <div class="module-group-content picker-folder-content"><div class="modules-empty"><span class="modules-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4.5h14v15H5z"/><path d="M8 9h8m-8 4h8m-8 4h5"/></svg></span><span class="modules-empty-copy"><strong>Aucun module ajouté</strong><small>Cette rubrique restera vide jusqu’à ce que tu la remplisses.</small></span></div></div>
+        <summary class="module-group-summary picker-folder-summary"><span class="picker-folder-icon picker-folder-icon--modules" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2 2h9v10h-17z"/><path d="M3.5 7.5v-2a1.5 1.5 0 0 1 1.5-1.5h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v2"/></svg></span><span class="picker-folder-copy"><strong>Modules</strong><small>Immunologie</small></span><span class="picker-folder-badge">1 module</span></summary>
+        <div class="module-group-content picker-folder-content">
+          <div class="cardio-subject-list" aria-label="Modules">
+            <button class="cardio-subject-row cardio-subject-row--immuno" id="immunologieToggle" type="button" aria-expanded="false" aria-controls="immunologieLessons"><span class="cardio-subject-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 5 6.2v5.1c0 4.3 2.9 7.6 7 9.2 4.1-1.6 7-4.9 7-9.2V6.2z"/><path d="m9 12 2.2 2.2L15.2 10"/></svg></span><span>Immunologie</span><span class="biochimie-total immuno-total">— QCM</span><span class="biochimie-chevron" aria-hidden="true">⌄</span></button>
+            <div class="biochimie-lessons immunologie-lessons" id="immunologieLessons" hidden>
+              <label class="select-all-row"><input type="checkbox" id="selectAllImmunoLessons"><span>Tout sélectionner</span></label>
+              <div class="module-picker-list immunologie-lesson-list"></div>
+            </div>
+          </div>
+        </div>
       </details>
     </div>
     <div class="module-dialog-footer"><div><div class="selection-summary" id="moduleSelectionSummary">Aucun module sélectionné</div><div class="module-action-error" id="examModuleError" role="status" aria-live="polite"></div></div><div class="module-actions"><button class="btn primary" id="startChosenModules" disabled>Quiz →</button><button class="btn exam-launch" id="startChosenExam" type="button" disabled><span>Examen&nbsp; ✦</span></button></div></div>
