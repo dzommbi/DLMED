@@ -176,11 +176,19 @@
     render();
   }
 
-  function moduleVisual(name){
+  function moduleVisual(name, group){
   const n=String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const groupKey=String(group||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   let tone='general';
   let svg='<circle cx="12" cy="12" r="8.5"/><path d="M12 7v10M7 12h10"/>';
-  if(n.includes('radiologie')){tone='radiology';svg='<rect x="3.5" y="4" width="17" height="15" rx="2"/><path d="M7 15l3-3 2.5 2.5 2-2L19 17M8 8h.01M12 21v-2M8 22h8"/>'}
+  if(groupKey.includes('immunologie')||n.includes('immunologie')){
+    if(n.includes('vaccin')){tone='immunology-vaccine';svg='<path d="m5 19 5-5m0 0 7-7m-7 7-3-3m3 3 3 3m-1-11 5 5m-3-7 4 4"/>'}
+    else if(n.includes('anticorps')||n.includes('antigene')||n.includes('immunoglob')){tone='immunology-antibody';svg='<path d="M7 4v4l5 4 5-4V4M12 12v8m-2-2h4"/><circle cx="7" cy="4" r="1"/><circle cx="17" cy="4" r="1"/>'}
+    else if(n.includes('allerg')||n.includes('hypersensibil')){tone='immunology-allergy';svg='<circle cx="12" cy="13" r="6"/><circle cx="12" cy="13" r="2"/><path d="M12 2v3M4.9 5.9 7 8m12.1-2.1L17 8M3 13H1m22 0h-2"/>'}
+    else if(n.includes('lymphocyte')||n.includes('immunite')||n.includes('cellulaire')||n.includes('humorale')){tone='immunology-cells';svg='<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><circle cx="12" cy="16" r="3"/><path d="m10 11 1 2m3-2-1 2m-2-7v5"/>'}
+    else{tone='immunology';svg='<path d="M12 3 19 6v5c0 4.5-2.8 8-7 10-4.2-2-7-5.5-7-10V6l7-3Z"/><circle cx="9" cy="11" r="1"/><circle cx="14.5" cy="10" r="1.2"/><circle cx="12" cy="15" r="1"/>'}
+  }
+  else if(n.includes('radiologie')){tone='radiology';svg='<rect x="3.5" y="4" width="17" height="15" rx="2"/><path d="M7 15l3-3 2.5 2.5 2-2L19 17M8 8h.01M12 21v-2M8 22h8"/>'}
   else if(n.includes('ecg')){tone='ecg';svg='<path d="M2.5 12h4l2.1-5 4.1 10 2.2-5h6.6"/>'}
   else if(n.includes('examens complementaires')){tone='exams';svg='<path d="m7 4 5 5-2 2-5-5z"/><path d="m11 10 4 4m-7 1a6 6 0 0 0 10-4m-7 4v2m-3 3h12m-5-3H9a5 5 0 0 0 0 3"/>'}
   else if(n.includes('observation medicale')){svg='<path d="M7 3.5h7l4 4v13H7z"/><path d="M14 3.5v4h4M10 11h5m-5 3h5m-5 3h3"/>'}
@@ -251,7 +259,7 @@ function updateSideNav() {
     const key = escapeHtml(part.key);
     const groupClassName = config.check;
     const badgeAttr = config.badge;
-    return `<label class="module-pick" data-lesson-card="${key}"><span class="module-order" ${badgeAttr}="${key}">—</span><input class="module-pick-check ${groupClassName}" type="checkbox" data-lesson-id="${escapeHtml(part.lessonId)}" value="${key}" aria-label="Sélectionner ${escapeHtml(part.name)}" ${disabled}><span class="module-pick-copy">${moduleVisual(part.name)}<span class="module-pick-label"><strong>${escapeHtml(part.name)}</strong></span></span><span class="module-pick-count">${part.count} QCM</span></label>`;
+    return `<label class="module-pick" data-lesson-card="${key}"><span class="module-order" ${badgeAttr}="${key}">—</span><input class="module-pick-check ${groupClassName}" type="checkbox" data-lesson-id="${escapeHtml(part.lessonId)}" value="${key}" aria-label="Sélectionner ${escapeHtml(part.name)}" ${disabled}><span class="module-pick-copy">${moduleVisual(part.name, group)}<span class="module-pick-label"><strong>${escapeHtml(part.name)}</strong></span></span><span class="module-pick-count">${part.count} QCM</span></label>`;
   }
 
   function renderModulePicker() {

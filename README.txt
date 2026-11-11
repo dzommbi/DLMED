@@ -1,13 +1,11 @@
-DLMed — questions sans réponse en mode Examen (v115)
+DLMED — Icônes Immunologie (v118)
 
-Remplacez les fichiers suivants à la racine du dépôt GitHub :
-- exam.js
-- exam.html
-- sw.js
+Remplacez à la racine du site les 4 fichiers de cette archive :
 - index.html
 - quiz.html
-- pwa-update.js
+- supabase-runtime.js
+- sw.js
 
-Sur la dernière question, la remise de copie est bloquée s'il reste des réponses vides. Le site affiche en français le nombre de questions manquantes, revient à la première question sans réponse et met ces numéros en évidence. Après réponse, une nouvelle tentative de remise conduit à la prochaine question vide. Quand elles sont toutes répondues, la correction suit le parcours normal.
+Les leçons d’Immunologie reçoivent des icônes SVG adaptées (vaccination, anticorps, allergie, cellules immunitaires et protection), avec couleurs cohérentes en mode jour/nuit. Le cache Service Worker passe à v118 afin que les appareils déjà utilisés récupèrent les fichiers actualisés.
 
-Le Service Worker passe en version v115 afin que les anciens appareils installent ces fichiers. Enregistrez les changements sur la branche main, puis attendez le déploiement GitHub Pages.
+Après remplacement, publiez les fichiers sur la branche GitHub Pages habituelle.
