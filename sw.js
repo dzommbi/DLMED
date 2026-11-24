@@ -1,10 +1,10 @@
 const CACHE_PREFIX = 'dlmed-shell-';
 // Bump this on each site release so open clients can detect the new worker.
-const APP_VERSION = 'v120';
+const APP_VERSION = 'v121';
 const CACHE_NAME = `${CACHE_PREFIX}${APP_VERSION}`;
 const APP_FILES = [
-  './', './index.html', './quiz.html', './exam.html',
-  './exam.js', './exam-launcher.js', './pwa-update.js?v=115',
+  './', './index.html', './quiz.html', './exam.html', './test.html',
+  './exam.js', './exam-launcher.js', './test.js', './test-bank.js', './pwa-update.js?v=115',
   './privacy/', './privacy/index.html', './terms/', './terms/index.html',
   './manifest.json', './manifest.webmanifest', './favicon.ico', './favicon.png',
   './apple-touch-icon.png', './dlmed-icon.svg', './dlmed-icon-192.png', './dlmed-icon-512.png',
@@ -13,7 +13,7 @@ const APP_FILES = [
 ];
 const SUPABASE_ORIGIN = 'https://alfziyssfhiabqgmzlsb.supabase.co';
 const REQUIRED_APP_PATHS = new Set([
-  '', 'index.html', 'quiz.html', 'exam.html', 'exam.js', 'exam-launcher.js',
+  '', 'index.html', 'quiz.html', 'exam.html', 'test.html', 'exam.js', 'exam-launcher.js', 'test.js', 'test-bank.js',
   'pwa-update.js', 'supabase-config.js', 'supabase-auth.js', 'supabase-data.js',
   'supabase-runtime.js'
 ]);
