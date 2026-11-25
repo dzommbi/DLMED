@@ -89,6 +89,39 @@
     }
   </style>
 
+  <style id="exam-phone-layout-fix">
+    html,body{width:100%;max-width:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    body{overflow-x:hidden;overflow-x:clip}
+    @media(max-width:700px){
+      .topbar{width:100%;max-width:100%;flex-wrap:nowrap}
+      .brand{min-width:0}
+      .top-actions{min-width:0;flex-shrink:0}
+      .exam-main{box-sizing:border-box;width:100%;max-width:1050px}
+      .exam-heading{display:flex;flex-direction:column;align-items:stretch;gap:9px}
+      .exam-heading>div{min-width:0}
+      .exam-heading #examHomeLink{align-self:flex-end;min-height:40px;padding:9px 12px;font-size:12px}
+      #examMain,#examPanel,.exam-card,.exam-question-head,.exam-answer-list,.exam-navigation,.exam-nav-strip,.result-hero,.review-list,.review-item{min-width:0;max-width:100%}
+      .exam-card{width:100%;overflow:hidden}
+      .exam-module-tag{min-width:0;max-width:100%;overflow-wrap:anywhere}
+      .exam-question{min-width:0;overflow-wrap:anywhere}
+      .exam-answer{min-width:0}
+      .exam-answer>span{min-width:0;overflow-wrap:anywhere}
+      .exam-actions-right .btn{min-width:0;line-height:1.35}
+      .exam-navigation{width:100%;gap:4px}
+      .exam-nav-strip{flex:1;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,36px);gap:5px}
+      .exam-nav-number{min-width:0}
+      .result-hero{grid-template-columns:minmax(0,1fr);overflow:hidden}
+      .result-hero>*{min-width:0}
+      .result-score{max-width:100%}
+      .review-toggle{grid-template-columns:28px minmax(0,1fr) 17px}
+      .review-toggle-copy{min-width:0;overflow-wrap:anywhere}
+      .review-toggle-copy strong,.review-toggle-copy small{white-space:normal;overflow-wrap:anywhere}
+      .review-detail{min-width:0}
+      .review-question,.review-option,.review-explanation{overflow-wrap:anywhere}
+      .review-footer-actions .btn{max-width:100%;white-space:normal}
+    }
+  </style>
+
 </head>
 <body data-page="quiz">
   <div class="exam-loading" id="quizLoading" role="status"><span>Vérification de ta session…</span></div>
