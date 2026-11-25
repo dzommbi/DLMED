@@ -15,6 +15,7 @@
   let activeTest = null;
   let answers = Object.create(null);
   let questionIndex = 0;
+  let finishRequested = false;
   let startedAt = 0;
   let clockId = 0;
   let bootPromise = null;
@@ -114,6 +115,7 @@
       phase: saved.phase,
       answers: restored,
       questionIndex: Math.min(Math.max(Number(saved.questionIndex) || 0, 0), test.questions.length - 1),
+      finishRequested: saved.finishRequested === true,
       startedAt: Number(saved.startedAt) || Date.now(),
       finishedAt: Number(saved.finishedAt) || 0
     };
@@ -127,6 +129,7 @@
         phase,
         answers,
         questionIndex,
+        finishRequested,
         startedAt,
         finishedAt
       }));
@@ -216,6 +219,7 @@
       const saved = fresh ? null : savedAttempt(test);
       answers = saved?.answers || Object.create(null);
       questionIndex = saved?.questionIndex || 0;
+      finishRequested = saved?.finishRequested === true;
       startedAt = saved?.startedAt || Date.now();
       setUrl(test.id);
       setLoading('', false);
@@ -253,6 +257,7 @@
     const selected = answers[question.id] || [];
     const multiple = allowsMultiple(question);
     const answeredCount = activeTest.questions.filter(item => (answers[item.id] || []).length > 0).length;
+    const unansweredCount = activeTest.questions.length - answeredCount;
     const progress = Math.round((questionIndex + 1) / activeTest.questions.length * 100);
     $('#progressFill').style.width = progress + '%';
     $('.progress-track').setAttribute('aria-valuenow', String(progress));
@@ -270,7 +275,8 @@
       (multiple ? 'Plusieurs réponses possibles.' : 'Une seule réponse.') +
       ' Le corrigé reste masqué jusqu’à la fin.</span><div class="action-group"><button class="btn" id="questionPrevious" type="button" ' +
       (questionIndex === 0 ? 'disabled' : '') + '>← Précédente</button><button class="btn primary" id="questionNext" type="button">' +
-      (questionIndex === activeTest.questions.length - 1 ? 'Terminer et corriger ✓' : 'Suivante →') +
+      (finishRequested ? (unansweredCount ? 'Suivante à compléter →' : 'Afficher le corrigé ✓') :
+        (questionIndex === activeTest.questions.length - 1 ? 'Terminer et corriger ✓' : 'Suivante →')) +
       '</button></div></div>';
 
     questionCard.querySelectorAll('[data-option]').forEach(button => button.addEventListener('click', () => {
@@ -289,7 +295,8 @@
     }));
     $('#questionPrevious').addEventListener('click', () => moveQuestion(-1));
     $('#questionNext').addEventListener('click', () => {
-      if (questionIndex < activeTest.questions.length - 1) moveQuestion(1);
+      if (finishRequested) continueFinishFlow();
+      else if (questionIndex < activeTest.questions.length - 1) moveQuestion(1);
       else void finishTest();
     });
     $('#questionNav').innerHTML = activeTest.questions.map((item, index) => {
@@ -305,6 +312,14 @@
       storeAttempt();
       renderQuestion();
     }));
+    const currentNavButton = $('#questionNav').querySelector('.current');
+    if (currentNavButton) {
+      const nav = $('#questionNav');
+      const navRect = nav.getBoundingClientRect();
+      const buttonRect = currentNavButton.getBoundingClientRect();
+      const targetLeft = nav.scrollLeft + buttonRect.left - navRect.left - (nav.clientWidth - currentNavButton.offsetWidth) / 2;
+      nav.scrollTo({ left: Math.max(0, targetLeft), behavior: 'smooth' });
+    }
   }
 
   function moveQuestion(amount) {
@@ -335,13 +350,45 @@
     return data;
   }
 
+  function continueFinishFlow() {
+    if (!activeTest || !finishRequested) return;
+    const currentQuestion = activeTest.questions[questionIndex];
+    if (!(answers[currentQuestion.id] || []).length) {
+      const notice = $('#unansweredNotice');
+      notice.textContent = 'Réponds à la question ' + (questionIndex + 1) + ' avant de continuer.';
+      notice.hidden = false;
+      return;
+    }
+    const unansweredAfterCurrent = activeTest.questions.findIndex((question, index) =>
+      index > questionIndex && !(answers[question.id] || []).length);
+    const nextUnanswered = unansweredAfterCurrent >= 0
+      ? unansweredAfterCurrent
+      : activeTest.questions.findIndex(question => !(answers[question.id] || []).length);
+    if (nextUnanswered >= 0) {
+      questionIndex = nextUnanswered;
+      const notice = $('#unansweredNotice');
+      notice.textContent = 'Il reste des questions sans réponse. Réponds à la question ' +
+        (nextUnanswered + 1) + ' puis continue.';
+      notice.hidden = false;
+      storeAttempt();
+      renderQuestion();
+      return;
+    }
+    finishRequested = false;
+    $('#unansweredNotice').hidden = true;
+    storeAttempt();
+    void finishTest();
+  }
+
   async function finishTest() {
     if (!activeTest || !window.DLMED_AUTH?.isAuthorized?.() || !await window.DLMED_AUTH.ensureActiveSession()) return;
     const unanswered = activeTest.questions.findIndex(question => !(answers[question.id] || []).length);
     if (unanswered >= 0) {
+      finishRequested = true;
       questionIndex = unanswered;
       const notice = $('#unansweredNotice');
-      notice.textContent = 'Il reste des questions sans réponse. Réponds à la question ' +
+      const unansweredCount = activeTest.questions.filter(question => !(answers[question.id] || []).length).length;
+      notice.textContent = 'Il reste ' + unansweredCount + ' question(s) sans réponse. Réponds à la question ' +
         (unanswered + 1) + ' pour remettre le test complet.';
       notice.hidden = false;
       storeAttempt();
@@ -349,6 +396,7 @@
       notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    finishRequested = false;
     setLoading('Envoi de la copie et chargement du corrigé…');
     try {
       gradeResult = await requestCorrection();
@@ -465,6 +513,7 @@
     window.clearInterval(clockId);
     activeTest = null;
     gradeResult = null;
+    finishRequested = false;
     setUrl();
     showView('catalog');
     renderCatalog();
