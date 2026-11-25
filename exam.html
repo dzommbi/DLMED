@@ -120,6 +120,13 @@
       .review-question,.review-option,.review-explanation{overflow-wrap:anywhere}
       .review-footer-actions .btn{max-width:100%;white-space:normal}
     }
+    @media(max-width:480px){
+      .topbar{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:9px 12px}
+      .brand{grid-row:1;justify-self:start}
+      .top-actions{grid-row:2;width:100%;justify-content:space-between;gap:8px}
+      .theme-toggle{flex:0 0 auto}
+      .timer-pill{min-width:80px;min-height:38px;padding:8px 10px;font-size:11px}
+    }
   </style>
 
 </head>

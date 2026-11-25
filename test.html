@@ -138,6 +138,13 @@
       .review-detail{padding:0 10px 12px}
       .site-legal-footer{box-sizing:border-box;width:calc(100% - 24px)}
     }
+    @media(max-width:480px){
+      .topbar{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;padding:9px 12px}
+      .brand{grid-row:1;justify-self:start}
+      .top-actions{grid-row:2;width:100%;margin-left:0;justify-content:space-between;gap:8px}
+      .theme-toggle{flex:0 0 auto}
+      .top-actions>.btn{min-height:40px;padding:9px 13px;white-space:nowrap}
+    }
   </style>
 
 </head>
