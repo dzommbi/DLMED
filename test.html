@@ -103,6 +103,39 @@
     }
   </style>
 
+  <style id="test-mobile-layout-fix">
+    html,body{width:100%;max-width:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    body{overflow-x:hidden;overflow-x:clip}
+    @media(max-width:700px){
+      .topbar{width:100%;max-width:100%;flex-wrap:nowrap}
+      .brand{min-width:0}
+      .top-actions{flex-shrink:0}
+      #testApp,#testApp>section,#runnerView,#resultsView,.runner-head,.runner-heading,.runner-meta,.question-card,.question-nav,.result-hero,.review-list,.review-item{min-width:0;max-width:100%}
+      .page{box-sizing:border-box;width:calc(100% - 24px);max-width:1020px}
+      .test-grid{grid-template-columns:minmax(0,1fr)}
+      .test-card{min-width:0}
+      .runner-head{display:grid;grid-template-columns:minmax(0,1fr)}
+      .runner-meta{display:flex;width:100%;justify-content:space-between;flex-wrap:wrap}
+      .question-card{overflow:hidden;padding:15px 12px}
+      .question-top{align-items:flex-start;flex-wrap:wrap}
+      .question-top span{min-width:0;overflow-wrap:anywhere}
+      .question-text,.answer-option>span,.review-question,.review-option>span,.review-explanation{min-width:0;overflow-wrap:anywhere}
+      .question-actions{align-items:stretch;flex-direction:column;margin:16px 0 0;padding:12px 0 0;background:transparent;backdrop-filter:none}
+      .action-group{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+      .action-group .btn{width:100%;min-width:0;min-height:44px;padding:9px 7px;font-size:11px;line-height:1.3;white-space:normal}
+      .question-nav{display:flex;max-height:none;gap:6px;overflow-x:auto;overflow-y:hidden;padding:7px 3px 9px;touch-action:pan-x;scroll-snap-type:x proximity}
+      .question-nav button{flex:0 0 38px;width:38px;min-width:38px;height:38px;scroll-snap-align:start}
+      .result-hero{grid-template-columns:minmax(0,1fr);justify-items:start}
+      .result-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+      .result-actions .btn{width:100%;min-width:0;padding:9px 7px;font-size:11px;white-space:normal}
+      .review-item summary{grid-template-columns:27px minmax(0,1fr);align-items:start}
+      .review-summary{min-width:0}
+      .review-summary strong{white-space:normal;overflow-wrap:anywhere}
+      .review-detail{padding:0 10px 12px}
+      .site-legal-footer{box-sizing:border-box;width:calc(100% - 24px)}
+    }
+  </style>
+
 </head>
 <body data-page="quiz">
   <div class="page-loading" id="authLoading" role="status"><span>Vérification de ta session…</span></div>
