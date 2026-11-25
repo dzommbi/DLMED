@@ -88,3 +88,28 @@ The SQL migration and Dashboard provider settings have not been applied by this 
 - From device A's old access token, verify direct reads of `subject`, `lessons`, and `questions`, and `grade_qcm_question`, are rejected after B claims the session. Confirm that A's prior `auth.sessions` row is gone. Do not place JWTs in logs or issue trackers.
 - Log out on B, confirm its `dlmed_active_sessions.is_active` is false, then sign in again and confirm a newer Supabase session can claim the slot. Reload and navigate between the welcome page and quiz page.
 - Run the pgTAP migration checks and inspect table/column grants, including that `anon` has no `questions.question` privilege and `authenticated` has no `questions_answers.correct_options` privilege.
+
+
+## Test mode — UEI 1
+
+The Test page reads the published exam catalog from dlmed_tests and question prompts/options from dlmed_test_questions after the existing Google Auth and active-session checks succeed. The answer key, explanations, and references are stored separately in dlmed_test_corrections; client roles have no direct table access to that table.
+
+The dlmed_grade_test(integer, jsonb) RPC requires a complete active DLMed session and a submission for every question in the selected exam. It returns the score and detailed corrections only after submission. Attempt answers and scores are kept in the browser's session storage; this feature does not add user attempt records to Supabase.
+
+Production contains 10 UEI 1 exams, each with 67 questions and 67 corrections (670 of each total). The schema and access controls are in migrations/20261125120000_dlmed_uei1_test_bank.sql. Exam content was imported from the supplied Markdown files and is not embedded in the browser bundle or the migration.
+
+### Re-importing or preparing another batch
+
+scripts/import-uei1-exams.mjs parses the source Markdown locally and does not use Supabase credentials. For the supplied files, first run a count check:
+
+~~~powershell
+node .\scripts\import-uei1-exams.mjs --directory "C:\path\to\examane" --mode summary
+~~~
+
+To generate an idempotent SQL upsert for one exam:
+
+~~~powershell
+node .\scripts\import-uei1-exams.mjs --directory "C:\path\to\examane" --mode sql --exam 1
+~~~
+
+The generated SQL includes the correction data. Keep that output private and do not commit it to the public website repository. The migration and production tables must exist before running a generated import.
