@@ -31,6 +31,64 @@
     :root[data-theme="night"] .exam-unanswered-notice{border-color:#795d2e;background:#3b3121;color:#f1cc80}
     :root[data-theme="night"] .exam-nav-number.unanswered:not(.current){background:#3b3121;color:#f1cc80}
   </style>
+  <style id="exam-mobile-polish">
+    @media (max-width:700px) {
+      .topbar{height:auto;min-height:58px;padding:8px 11px;gap:6px}
+      .brand{gap:7px;font-size:15px}
+      .brand-icon{width:31px;height:31px}
+      .top-actions{gap:5px;flex-shrink:0}
+      .theme-toggle{padding:3px}
+      .theme-choice{width:27px;height:27px}
+      .timer-pill{min-width:74px;padding:7px 8px;font-size:10px}
+      .exam-main{margin:15px auto;padding:0 11px calc(34px + env(safe-area-inset-bottom))}
+      .exam-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px;margin-bottom:13px}
+      .exam-heading>div{min-width:0}
+      .exam-heading #examHomeLink{grid-column:2;grid-row:1;white-space:nowrap;padding:8px 9px;font-size:10px}
+      .exam-heading h1{font-size:clamp(21px,6vw,27px);line-height:1.2;overflow-wrap:anywhere}
+      .exam-heading p{font-size:12px;line-height:1.55}
+      .exam-pill{padding:7px 9px}
+      .exam-card{padding:15px 12px;border-radius:16px}
+      .exam-question-head{align-items:flex-start;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+      .exam-module-tag{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+      .exam-count{padding-top:5px;white-space:nowrap}
+      .exam-progress{margin-bottom:18px}
+      .exam-question{margin-bottom:16px;font-size:clamp(16px,4.5vw,19px);line-height:1.6;overflow-wrap:anywhere}
+      .exam-answer{min-height:48px;padding:12px 11px;gap:10px;font-size:13px;line-height:1.55}
+      .exam-actions{align-items:stretch;gap:10px;margin-top:18px;padding-top:13px}
+      .exam-selection-hint{font-size:11px;line-height:1.5}
+      .exam-actions-right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+      .exam-actions-right .btn{width:100%;min-height:44px;padding:9px 7px;font-size:11px;white-space:normal}
+      .exam-navigation{gap:5px;margin-top:12px}
+      .exam-nav-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(2,36px);align-content:center;justify-content:initial;gap:5px;min-width:0;overflow:visible}
+      .exam-nav-number{width:100%;min-width:0;height:36px}
+      .exam-nav-arrow{flex:0 0 32px;width:32px;height:36px}
+      .exam-message{margin:0 8px;padding:21px 15px;border-radius:17px}
+      .exam-message h1{font-size:21px}
+      .exam-message p{font-size:12px;line-height:1.6}
+      .result-hero{gap:13px;padding:18px 15px;border-radius:17px}
+      .result-score{padding:8px 11px}
+      .review-toggle{grid-template-columns:27px minmax(0,1fr) 16px;gap:7px;padding:10px}
+      .review-detail{padding:0 10px 12px}
+      .review-question{font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+      .review-option{font-size:11px;line-height:1.55}
+      .review-explanation{padding:11px;font-size:11px;overflow-wrap:anywhere}
+      .review-footer-actions .btn{min-height:42px}
+    }
+    @media (max-width:380px) {
+      .topbar{padding-right:8px;padding-left:8px}
+      .brand{gap:6px;font-size:14px}
+      .brand-icon{width:29px;height:29px}
+      .top-actions{gap:4px}
+      .theme-choice{width:25px}
+      .timer-pill{min-width:68px;padding:7px;font-size:10px}
+      .exam-main{padding-right:9px;padding-left:9px}
+      .exam-card{padding:14px 10px}
+      .exam-nav-arrow{flex-basis:28px;width:28px}
+      .exam-nav-strip{gap:4px}
+      .exam-nav-number{height:34px}
+    }
+  </style>
+
 </head>
 <body data-page="quiz">
   <div class="exam-loading" id="quizLoading" role="status"><span>Vérification de ta session…</span></div>
